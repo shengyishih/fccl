@@ -645,26 +645,6 @@ with tabs[3]:
             st.line_chart(point_data, x="測點", y=["原始厚度", "LSL", "USL"])
             st.caption("joblib 模型只預測異常分類與機率，不預測調整後的厚度剖面；圖中保留原始量測。")
 
-        work_order_lines = [
-            f"{change['設備參數']}: {change['批次實際值']:.4f} → {change['模擬調整值']:.4f} {change['單位']}"
-            for change in changes
-            if not np.isclose(change["批次實際值"], change["模擬調整值"])
-        ]
-        work_order_text = "\n".join([
-            "【FCCL 製程參數模擬工單】",
-            f"批次：{batch_id}",
-            f"產品型號：{current_batch['Product_Model']}",
-            f"模型預測：{'異常' if simulation['predicted_class'] == 1 else '正常'}",
-            f"異常機率：{simulation['anomaly_probability']:.1%}",
-            "調整項目：",
-            *(work_order_lines or ["無參數變更"]),
-        ])
-        st.download_button(
-            "📄 下載製程調機模擬工單 (.txt)",
-            data=work_order_text,
-            file_name=f"FCCL_WorkOrder_{batch_id}.txt",
-            mime="text/plain",
-        )
     else:
         with profile_column:
             st.info("輸入本產品型號適用的模擬參數後，按「以設備參數執行模型預測」查看結果。")
