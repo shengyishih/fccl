@@ -416,7 +416,7 @@ tabs = st.tabs([
 # TAB 1: Batch Explorer Table & CSV Export
 # ==========================================
 with tabs[0]:
-    st.markdown("### 📋 批次全數據庫與導出")
+    st.markdown("### 📋 批次全數據庫")
     database_view = df_filtered[[
         'Batch_ID', 'Sample_Date', 'Line', 'Product_Model', 'cpk', 'QC_Result', 'Anomaly_Pattern'
     ]].copy()
@@ -440,14 +440,6 @@ with tabs[0]:
         key=table_widget_key,
         on_select="rerun",
         selection_mode="single-row",
-    )
-
-    csv_data = df_filtered.to_csv(index=False).encode('utf-8-sig')
-    st.download_button(
-        "📥 導出篩選批次數據為 CSV",
-        data=csv_data,
-        file_name="FCCL_Batch_QC_Data.csv",
-        mime="text/csv"
     )
 
 # ==========================================
