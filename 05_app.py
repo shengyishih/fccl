@@ -37,8 +37,16 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     section[data-testid="stSidebar"] {
-        background-color: #0b0f17;
-        color: #f8fafc;
+        background-color: #ffffff;
+        color: #0f172a;
+        border-right: 1px solid #e2e8f0;
+    }
+    section[data-testid="stSidebar"] > div {
+        background-color: #ffffff;
+    }
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    section[data-testid="stSidebar"] label {
+        color: #0f172a;
     }
     .metric-card {
         background-color: #ffffff;
