@@ -6,6 +6,7 @@ FCCL 製程優化與基材厚度分析系統 (FCCL Process Optimization Dashboar
 可直接上傳 GitHub 並發佈至 Streamlit Community Cloud (https://share.streamlit.io)
 """
 
+import json
 import os
 import hashlib
 from pathlib import Path
@@ -27,6 +28,7 @@ ROOT = Path(__file__).resolve().parent
 CSV_PATH = ROOT / "data" / "processed" / "fccl_cleaned.csv"
 DEVIATION_PATH = ROOT / "data" / "processed" / "fccl_process_deviation_features.csv"
 MODEL_PATH = ROOT / "models" / "random_forest_anomaly.joblib"
+EQUIPMENT_SPECS_PATH = ROOT / "data" / "processed" / "fccl_equipment_specs.json"
 
 # Custom Sleek Industrial CSS
 st.markdown("""
@@ -154,6 +156,14 @@ def load_anomaly_model():
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"找不到專案模型：{MODEL_PATH}")
     return joblib.load(MODEL_PATH)
+
+
+@st.cache_data
+def load_equipment_specs():
+    if not EQUIPMENT_SPECS_PATH.exists():
+        raise FileNotFoundError(f"設備參數規格檔不存在：{EQUIPMENT_SPECS_PATH}")
+    with EQUIPMENT_SPECS_PATH.open("r", encoding="utf-8") as stream:
+        return json.load(stream)
 
 
 EQUIPMENT_PARAMETERS = [
@@ -399,7 +409,7 @@ tabs = st.tabs([
     "📐 10點跨幅剖面 (TD Profiler)",
     "⚙️ 機台參數偏差與根因 (Deviation)",
     "🛠️ 製程調機模擬器 (Simulator)",
-    "📘 檢測法 SOP 原理 (QA Protocol)"
+    "⚙️ 製程設備參數 (Equipment Settings)"
 ])
 
 # ==========================================
@@ -697,22 +707,55 @@ with tabs[3]:
             st.info("輸入本產品型號適用的模擬參數後，按「以設備參數執行模型預測」查看結果。")
 
 # ==========================================
-# TAB 5: QC Inspection Method Guide (IPC-TM-650)
+# TAB 5: Product-specific equipment settings
 # ==========================================
 with tabs[4]:
-    st.markdown("### 📘 QC/QA 部門「基材機械厚度檢測法」工程技術指南")
-    st.markdown("""
-    #### 1. 檢測法標準規範 (IPC-TM-650 Method 2.2.18 / 2.2.4)
-    在軟性銅箔基板 (FCCL) 製造中，高精度機械接觸式千分測厚計為最終出廠與驗收之法規黃金基準。
-    相較於光學式（X-ray / 渦電流 / 紅外線）檢測法，機械厚度檢測法直接量測壓砧接觸基材的絕對實體幾何厚度，不受銅箔晶粒取向散射、表面氧化物或樹脂折射率波動干擾。
+    st.markdown("### 製程設備參數設定要求")
+    st.caption("依設備技術參數規格表，按目前產線與產品型號列出 WS-01 至 WS-09 的 Recipe Target、公差範圍及 QCP 管制項目。")
 
-    #### 2. 接觸測頭與面壓管制規範 (22 ~ 30 kPa)
-    * **測頭尺寸規格**：平面測砧直徑 $\\varnothing 6.35\\text{mm}$ (或球面測頭 $r = 3.175\\text{mm}$)。
-    * **面壓管制**：嚴格限制在 **$22 \\sim 30\\text{ kPa}$** ($220 \\sim 300\\text{ gf/cm}^2$)。若荷重過大會導致高分子 PI 膜產生彈性蠕變凹陷 (Creep Indentation) 導致量測偏薄；荷重過輕則無法克服微薄捲曲應力。
+    equipment_specs = load_equipment_specs()
+    active_line = str(current_batch["Line"])
+    line_models = sorted(
+        model for model, spec in equipment_specs.items()
+        if spec["line"] == active_line
+    )
+    if not line_models:
+        st.warning(f"規格表中沒有 {active_line} 產線的設備參數。")
+    else:
+        preferred_model = model_filter if model_filter in line_models else str(current_batch["Product_Model"])
+        selected_model = st.selectbox(
+            "產品型號",
+            line_models,
+            index=line_models.index(preferred_model) if preferred_model in line_models else 0,
+            key="equipment_spec_model",
+        )
+        product_spec = equipment_specs[selected_model]
 
-    #### 3. 跨幅 10 點取樣法 (TD Profile)
-    * 裁切垂直於出料方向之全幅試樣條（寬 50mm）。
-    * 自操作側 (OS，點P1) 等間距取樣至傳動側 (DS，點P10)。P1、P10 監控塗佈邊緣效應 (Edge Beads)，P4~P7 監控貼合壓輪中凸 (Crown)。
-    """)
+        st.markdown(f"**目前產線：{active_line}｜產品型號：{selected_model}**")
+        summary_columns = st.columns(3)
+        summary_columns[0].metric("產品層數", product_spec["layers"])
+        summary_columns[1].metric("產品總厚度", f"{product_spec['total_thickness_um']:g} µm")
+        summary_columns[2].metric("目標良率", f"≥ {product_spec['yield_target_pct']:g}%")
+
+        for station in product_spec["stations"]:
+            station_title = f"{station['code']}｜{station['name']}"
+            with st.expander(station_title, expanded=station["code"] == "WS-01"):
+                station_rows = [
+                    {
+                        "設備技術參數": parameter["name"].replace(" (*QCP)", ""),
+                        "Recipe Target": parameter["target"],
+                        "管制下限": parameter["lower"],
+                        "管制上限": parameter["upper"],
+                        "單位": parameter["unit"],
+                        "管制項目": "QCP" if parameter["qcp"] else "一般設定",
+                    }
+                    for parameter in station["parameters"]
+                ]
+                st.dataframe(
+                    pd.DataFrame(station_rows),
+                    hide_index=True,
+                    width="stretch",
+                    alt=f"{selected_model} {station['code']} 設備參數與管制範圍",
+                )
 
 # ==========================================

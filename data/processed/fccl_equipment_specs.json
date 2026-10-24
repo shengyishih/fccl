@@ -1,0 +1,2782 @@
+{
+  "FCCL-3L-35/20/35": {
+    "line": "3L",
+    "layers": "3L",
+    "total_thickness_um": 160.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 65.0,
+            "unit": "N/m",
+            "lower": 60.0,
+            "upper": 73.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.0,
+            "unit": "kW",
+            "lower": 3.6,
+            "upper": 4.4,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 3.8,
+            "unit": "m/min",
+            "lower": 3.3,
+            "upper": 4.3,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 4800.0,
+            "unit": "mPa·s",
+            "lower": 4200.0,
+            "upper": 5400.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 135.0,
+            "unit": "μm",
+            "lower": 130.0,
+            "upper": 140.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 96.0,
+            "unit": "mL/min",
+            "lower": 86.0,
+            "upper": 106.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 56.0,
+            "unit": "μm",
+            "lower": 53.5,
+            "upper": 58.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 90.0,
+            "unit": "°C",
+            "lower": 85.0,
+            "upper": 95.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 130.0,
+            "unit": "°C",
+            "lower": 125.0,
+            "upper": 138.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "真空高溫熱滾輪壓合站（鏡面高溫油加熱熱壓合複合機）",
+        "parameters": [
+          {
+            "name": "壓合鏡面鋼輥表面溫度 (*QCP)",
+            "target": 180.0,
+            "unit": "°C",
+            "lower": 174.0,
+            "upper": 186.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 340.0,
+            "unit": "N/mm",
+            "lower": 315.0,
+            "upper": 370.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 165.0,
+            "unit": "°C",
+            "lower": 158.0,
+            "upper": 172.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 12.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 2.5,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 70.0,
+            "unit": "N/m",
+            "lower": 65.0,
+            "upper": 77.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 1.65,
+            "unit": "N/mm",
+            "lower": 1.35,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-3L-18/12/18": {
+    "line": "3L",
+    "layers": "3L",
+    "total_thickness_um": 72.5,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 38.0,
+            "unit": "N/m",
+            "lower": 33.0,
+            "upper": 46.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.0,
+            "unit": "kW",
+            "lower": 3.6,
+            "upper": 4.4,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 5.5,
+            "unit": "m/min",
+            "lower": 5.0,
+            "upper": 6.0,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 4800.0,
+            "unit": "mPa·s",
+            "lower": 4200.0,
+            "upper": 5400.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 95.0,
+            "unit": "μm",
+            "lower": 90.0,
+            "upper": 100.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 83.0,
+            "unit": "mL/min",
+            "lower": 73.0,
+            "upper": 93.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 33.6,
+            "unit": "μm",
+            "lower": 31.1,
+            "upper": 36.1,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 90.0,
+            "unit": "°C",
+            "lower": 85.0,
+            "upper": 95.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 130.0,
+            "unit": "°C",
+            "lower": 125.0,
+            "upper": 138.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "真空高溫熱滾輪壓合站（鏡面高溫油加熱熱壓合複合機）",
+        "parameters": [
+          {
+            "name": "壓合鏡面鋼輥表面溫度 (*QCP)",
+            "target": 180.0,
+            "unit": "°C",
+            "lower": 174.0,
+            "upper": 186.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 260.0,
+            "unit": "N/mm",
+            "lower": 235.0,
+            "upper": 290.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 165.0,
+            "unit": "°C",
+            "lower": 158.0,
+            "upper": 172.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 12.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.5,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 43.0,
+            "unit": "N/m",
+            "lower": 38.0,
+            "upper": 50.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 1.65,
+            "unit": "N/mm",
+            "lower": 1.35,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-18/50/18": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 86.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 38.0,
+            "unit": "N/m",
+            "lower": 33.0,
+            "upper": 46.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.0,
+            "unit": "kW",
+            "lower": 3.6,
+            "upper": 4.4,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 5.5,
+            "unit": "m/min",
+            "lower": 5.0,
+            "upper": 6.0,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 160.0,
+            "unit": "μm",
+            "lower": 155.0,
+            "upper": 165.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 520.0,
+            "unit": "mL/min",
+            "lower": 510.0,
+            "upper": 530.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 210.0,
+            "unit": "μm",
+            "lower": 207.5,
+            "upper": 212.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 260.0,
+            "unit": "N/mm",
+            "lower": 235.0,
+            "upper": 290.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.5,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 43.0,
+            "unit": "N/m",
+            "lower": 38.0,
+            "upper": 50.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 1.25,
+            "unit": "N/mm",
+            "lower": 1.05,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-18/25/18": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 61.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 38.0,
+            "unit": "N/m",
+            "lower": 33.0,
+            "upper": 46.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.0,
+            "unit": "kW",
+            "lower": 3.6,
+            "upper": 4.4,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 5.5,
+            "unit": "m/min",
+            "lower": 5.0,
+            "upper": 6.0,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 8500.0,
+            "unit": "mPa·s",
+            "lower": 7800.0,
+            "upper": 9200.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 260.0,
+            "unit": "mL/min",
+            "lower": 250.0,
+            "upper": 270.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 105.0,
+            "unit": "μm",
+            "lower": 102.5,
+            "upper": 107.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 395.0,
+            "unit": "°C",
+            "lower": 389.0,
+            "upper": 401.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 260.0,
+            "unit": "N/mm",
+            "lower": 235.0,
+            "upper": 290.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 260.0,
+            "unit": "°C",
+            "lower": 250.0,
+            "upper": 270.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.5,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 43.0,
+            "unit": "N/m",
+            "lower": 38.0,
+            "upper": 50.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 1.25,
+            "unit": "N/mm",
+            "lower": 1.05,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-12/25/12": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 49.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 22.0,
+            "unit": "N/m",
+            "lower": 17.0,
+            "upper": 30.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 3.2,
+            "unit": "kW",
+            "lower": 2.8,
+            "upper": 3.6,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 7.2,
+            "unit": "m/min",
+            "lower": 6.7,
+            "upper": 7.7,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 340.0,
+            "unit": "mL/min",
+            "lower": 330.0,
+            "upper": 350.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 105.0,
+            "unit": "μm",
+            "lower": 102.5,
+            "upper": 107.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 190.0,
+            "unit": "N/mm",
+            "lower": 165.0,
+            "upper": 220.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.0,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 27.0,
+            "unit": "N/m",
+            "lower": 22.0,
+            "upper": 34.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 0.95,
+            "unit": "N/mm",
+            "lower": 0.8,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-12/20/12": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 44.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 22.0,
+            "unit": "N/m",
+            "lower": 17.0,
+            "upper": 30.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 3.2,
+            "unit": "kW",
+            "lower": 2.8,
+            "upper": 3.6,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 7.2,
+            "unit": "m/min",
+            "lower": 6.7,
+            "upper": 7.7,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 272.0,
+            "unit": "mL/min",
+            "lower": 262.0,
+            "upper": 282.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 84.0,
+            "unit": "μm",
+            "lower": 81.5,
+            "upper": 86.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 190.0,
+            "unit": "N/mm",
+            "lower": 165.0,
+            "upper": 220.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.0,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 27.0,
+            "unit": "N/m",
+            "lower": 22.0,
+            "upper": 34.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 0.95,
+            "unit": "N/mm",
+            "lower": 0.8,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-12/12/12": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 36.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 22.0,
+            "unit": "N/m",
+            "lower": 17.0,
+            "upper": 30.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.8,
+            "unit": "kW",
+            "lower": 4.4,
+            "upper": 5.2,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 7.2,
+            "unit": "m/min",
+            "lower": 6.7,
+            "upper": 7.7,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 163.0,
+            "unit": "mL/min",
+            "lower": 153.0,
+            "upper": 173.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 50.4,
+            "unit": "μm",
+            "lower": 47.9,
+            "upper": 52.9,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 385.0,
+            "unit": "°C",
+            "lower": 379.0,
+            "upper": 391.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 190.0,
+            "unit": "N/mm",
+            "lower": 165.0,
+            "upper": 220.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.0,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 27.0,
+            "unit": "N/m",
+            "lower": 22.0,
+            "upper": 34.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 0.95,
+            "unit": "N/mm",
+            "lower": 0.8,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz (*QCP)",
+            "target": 2.85,
+            "unit": "ε",
+            "lower": 2.75,
+            "upper": 2.95,
+            "qcp": true
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-2L-09/12/09": {
+    "line": "2L",
+    "layers": "2L",
+    "total_thickness_um": 30.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 22.0,
+            "unit": "N/m",
+            "lower": 17.0,
+            "upper": 30.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 3.2,
+            "unit": "kW",
+            "lower": 2.8,
+            "upper": 3.6,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 7.2,
+            "unit": "m/min",
+            "lower": 6.7,
+            "upper": 7.7,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 163.0,
+            "unit": "mL/min",
+            "lower": 153.0,
+            "upper": 173.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 50.4,
+            "unit": "μm",
+            "lower": 47.9,
+            "upper": 52.9,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 190.0,
+            "unit": "N/mm",
+            "lower": 165.0,
+            "upper": 220.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.0,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 27.0,
+            "unit": "N/m",
+            "lower": 22.0,
+            "upper": 34.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 0.95,
+            "unit": "N/mm",
+            "lower": 0.8,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-1L-18/25": {
+    "line": "1L",
+    "layers": "1L",
+    "total_thickness_um": 55.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 38.0,
+            "unit": "N/m",
+            "lower": 33.0,
+            "upper": 46.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 4.0,
+            "unit": "kW",
+            "lower": 3.6,
+            "upper": 4.4,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 5.5,
+            "unit": "m/min",
+            "lower": 5.0,
+            "upper": 6.0,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 260.0,
+            "unit": "mL/min",
+            "lower": 250.0,
+            "upper": 270.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 105.0,
+            "unit": "μm",
+            "lower": 102.5,
+            "upper": 107.5,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 260.0,
+            "unit": "N/mm",
+            "lower": 235.0,
+            "upper": 290.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.5,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 43.0,
+            "unit": "N/m",
+            "lower": 38.0,
+            "upper": 50.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 1.25,
+            "unit": "N/mm",
+            "lower": 1.05,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  },
+  "FCCL-1L-12/12": {
+    "line": "1L",
+    "layers": "1L",
+    "total_thickness_um": 24.0,
+    "yield_target_pct": 98.5,
+    "stations": [
+      {
+        "code": "WS-01",
+        "name": "原料放捲與電漿活化站（德國 Plasmatreat 卷對卷常壓低溫電漿處理機）",
+        "parameters": [
+          {
+            "name": "放捲張力設定 (*QCP)",
+            "target": 22.0,
+            "unit": "N/m",
+            "lower": 17.0,
+            "upper": 30.0,
+            "qcp": true
+          },
+          {
+            "name": "電漿射頻功率 (*QCP)",
+            "target": 3.2,
+            "unit": "kW",
+            "lower": 2.8,
+            "upper": 3.6,
+            "qcp": true
+          },
+          {
+            "name": "工作線速度",
+            "target": 7.2,
+            "unit": "m/min",
+            "lower": 6.7,
+            "upper": 7.7,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-02",
+        "name": "膠液/前驅體合成脫泡站（高精度真空雙行星混合攪拌釜）",
+        "parameters": [
+          {
+            "name": "行星攪拌轉速",
+            "target": 1250.0,
+            "unit": "RPM",
+            "lower": 1000.0,
+            "upper": 1400.0,
+            "qcp": false
+          },
+          {
+            "name": "真空脫泡腔負壓 (*QCP)",
+            "target": -98.5,
+            "unit": "kPa",
+            "lower": -100.0,
+            "upper": -95.0,
+            "qcp": true
+          },
+          {
+            "name": "膠液目標黏度 (*QCP)",
+            "target": 6200.0,
+            "unit": "mPa·s",
+            "lower": 5600.0,
+            "upper": 6800.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-03",
+        "name": "狹縫式模頭精密塗布站（日立化成型超精密狹縫模頭塗布系統）",
+        "parameters": [
+          {
+            "name": "模頭唇口開縫間距 (*QCP)",
+            "target": 85.0,
+            "unit": "μm",
+            "lower": 80.0,
+            "upper": 90.0,
+            "qcp": true
+          },
+          {
+            "name": "高精度計量泵流量 (*QCP)",
+            "target": 163.0,
+            "unit": "mL/min",
+            "lower": 153.0,
+            "upper": 173.0,
+            "qcp": true
+          },
+          {
+            "name": "塗布濕膜厚度目標 (*QCP)",
+            "target": 50.4,
+            "unit": "μm",
+            "lower": 47.9,
+            "upper": 52.9,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-04",
+        "name": "六溫區氣浮階梯乾燥箱（Spooner 多溫區低微粒非接觸氣浮乾燥爐）",
+        "parameters": [
+          {
+            "name": "Zone 1-2 初級低溫揮發區 (*QCP)",
+            "target": 105.0,
+            "unit": "°C",
+            "lower": 100.0,
+            "upper": 112.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 3-4 中級濃縮區溫度 (*QCP)",
+            "target": 155.0,
+            "unit": "°C",
+            "lower": 148.0,
+            "upper": 162.0,
+            "qcp": true
+          },
+          {
+            "name": "Zone 5-6 預固化/凝膠區 (*QCP)",
+            "target": 185.0,
+            "unit": "°C",
+            "lower": 178.0,
+            "upper": 192.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-05",
+        "name": "氮氣保護高溫亞胺化步進爐（連續式超高溫氮氣保護步進亞胺化爐）",
+        "parameters": [
+          {
+            "name": "亞胺化核心峰值溫度 (*QCP)",
+            "target": 365.0,
+            "unit": "°C",
+            "lower": 359.0,
+            "upper": 371.0,
+            "qcp": true
+          },
+          {
+            "name": "壓合/拉伸線壓力 (*QCP)",
+            "target": 190.0,
+            "unit": "N/mm",
+            "lower": 165.0,
+            "upper": 220.0,
+            "qcp": true
+          },
+          {
+            "name": "爐膛保護氣氛氧殘留 (*QCP)",
+            "target": 18.0,
+            "unit": "ppm",
+            "lower": 0.0,
+            "upper": 35.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-06",
+        "name": "應力釋放退火與熟化站（工業級大型真空程控退火熟化熱風循環窯）",
+        "parameters": [
+          {
+            "name": "熟化恆溫保溫溫度 (*QCP)",
+            "target": 210.0,
+            "unit": "°C",
+            "lower": 202.0,
+            "upper": 218.0,
+            "qcp": true
+          },
+          {
+            "name": "保溫恆溫持續時長 (*QCP)",
+            "target": 8.0,
+            "unit": "hours",
+            "lower": 6.0,
+            "upper": 16.0,
+            "qcp": true
+          },
+          {
+            "name": "程控降溫冷卻速率",
+            "target": 1.2,
+            "unit": "°C/min",
+            "lower": 0.8,
+            "upper": 1.8,
+            "qcp": false
+          }
+        ]
+      },
+      {
+        "code": "WS-07",
+        "name": "雙面在線AOI與激光測厚站（高精度雙面光學外觀檢測機與光學干涉測厚儀）",
+        "parameters": [
+          {
+            "name": "激光掃描測厚採樣頻率",
+            "target": 2500.0,
+            "unit": "Hz",
+            "lower": 2000.0,
+            "upper": 3000.0,
+            "qcp": false
+          },
+          {
+            "name": "總厚度管制公差帶 (*QCP)",
+            "target": 1.0,
+            "unit": "±μm",
+            "lower": 0.8,
+            "upper": 3.0,
+            "qcp": true
+          },
+          {
+            "name": "AOI 光學相機最小解析度 (*QCP)",
+            "target": 12.0,
+            "unit": "μm",
+            "lower": 8.0,
+            "upper": 16.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-08",
+        "name": "精密分切收捲與修邊站（高速微張力硬質鎢鋼圓刀分切複捲機）",
+        "parameters": [
+          {
+            "name": "剪切刀具切入重疊量 (*QCP)",
+            "target": 0.3,
+            "unit": "mm",
+            "lower": 0.22,
+            "upper": 0.38,
+            "qcp": true
+          },
+          {
+            "name": "兩側邊料修剪寬度",
+            "target": 18.0,
+            "unit": "mm",
+            "lower": 15.0,
+            "upper": 25.0,
+            "qcp": false
+          },
+          {
+            "name": "收捲張力起始基準值 (*QCP)",
+            "target": 27.0,
+            "unit": "N/m",
+            "lower": 22.0,
+            "upper": 34.0,
+            "qcp": true
+          }
+        ]
+      },
+      {
+        "code": "WS-09",
+        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
+        "parameters": [
+          {
+            "name": "180° 銅箔常態剝離強度 (*QCP)",
+            "target": 0.95,
+            "unit": "N/mm",
+            "lower": 0.8,
+            "upper": 2.2,
+            "qcp": true
+          },
+          {
+            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
+            "target": 288.0,
+            "unit": "°C",
+            "lower": 285.0,
+            "upper": 292.0,
+            "qcp": true
+          },
+          {
+            "name": "高頻介電常數 Dk @10GHz",
+            "target": 3.3,
+            "unit": "ε",
+            "lower": 3.15,
+            "upper": 3.45,
+            "qcp": false
+          }
+        ]
+      }
+    ]
+  }
+}
