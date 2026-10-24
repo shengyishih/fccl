@@ -1,6 +1,6 @@
-﻿# FCCL 厚度資料分析
+# FCCL 製程優化與基材厚度分析
 
-本專案提供 FCCL 厚度與製程參數的合成資料、資料分析流程，以及以 Random Forest 判斷異常批次的示範應用。
+本專案提供 FCCL 厚度與製程參數資料、資料分析流程，以及以 Random Forest 評估異常批次的 Streamlit 儀表板。互動頁面採用五個分頁，呈現批次資料庫、跨幅厚度剖面、製程偏差與根因、調機模擬，以及檢測 SOP。
 
 ## 專案內容
 
@@ -9,7 +9,7 @@
 - `02_data_preparation.ipynb`：資料清理、探索性資料分析（EDA）、特徵轉換與 CSV 匯出。
 - `03_random_forest_training.ipynb`：訓練並評估異常分類模型。
 - `04_model_predict.ipynb`：載入模型並示範預測。
-- `05_app.py`：Streamlit 互動式應用。
+- `05_app.py`：Streamlit 儀表板；讀取下方專案 CSV，並在調機模擬中載入專案 joblib 模型。
 - `models/random_forest_anomaly.joblib`：已訓練模型。
 - `data/processed/`：清理後的批次資料、逐測點資料及製程偏差特徵。
 
@@ -19,7 +19,7 @@
 
 ```powershell
 uv sync
-uv run jupyter lab
+uv run python -m jupyter lab
 ```
 
 Notebook 會讀取專案根目錄的 `fccl_thickness_dataset.csv`，並建立 `data/processed/` 資料夾，輸出以下檔案：
@@ -34,10 +34,10 @@ Notebook 會讀取專案根目錄的 `fccl_thickness_dataset.csv`，並建立 `d
 
 ```powershell
 uv sync
-uv run streamlit run 05_app.py
+uv run python -m streamlit run 05_app.py
 ```
 
-應用程式使用 `models/random_forest_anomaly.joblib` 做批次異常預測，並讀取 `data/processed/` 中的資料。
+應用程式使用 `data/processed/fccl_cleaned.csv` 和 `data/processed/fccl_process_deviation_features.csv` 顯示批次資料及製程偏差，並使用 `models/random_forest_anomaly.joblib` 評估調機模擬後的異常分類。所有檔案均取自本專案，不會改讀其他部署頁面上的資料集。
 
 ## 資料處理原則
 
