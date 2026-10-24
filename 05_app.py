@@ -336,40 +336,11 @@ if selected_rows and 0 <= selected_rows[0] < len(df_filtered):
 else:
     current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
 
-# 5. Header KPI Metrics Cards
+# 5. Current batch summary cards
 st.markdown("## 📐 FCCL 製程優化與基材厚度分析儀表板")
 st.markdown("*QC/QA 機械厚度檢測法 (IPC-TM-650 2.2.18) · 跨幅 10 點連續剖面與機台製程參數優化*")
 
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-with col1:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">總分析批次</div>
-        <div class="metric-val">{len(df_raw)}</div>
-        <small style="color:#64748b;">全產線生產履歷</small>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    pass_pct = (len(df_raw[df_raw['QC_Result'] == 'PASS']) / len(df_raw)) * 100
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">總體合格率 (Yield)</div>
-        <div class="metric-val" style="color:#34d399;">{pass_pct:.1f}%</div>
-        <small style="color:#f87171;">NG: {len(df_raw[df_raw['QC_Result'] == 'NG'])} 批</small>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col3:
-    avg_cpk = df_raw['cpk'].mean()
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">平均製程能力 Cpk</div>
-        <div class="metric-val" style="color:#38bdf8;">{avg_cpk:.2f}</div>
-        <small style="color:#38bdf8;">Class A 良好</small>
-    </div>
-    """, unsafe_allow_html=True)
+col4, col5, col6 = st.columns(3)
 
 with col4:
     st.markdown(f"""
