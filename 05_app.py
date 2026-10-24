@@ -27,7 +27,7 @@ st.set_page_config(
 ROOT = Path(__file__).resolve().parent
 CSV_PATH = ROOT / "data" / "processed" / "fccl_cleaned.csv"
 DEVIATION_PATH = ROOT / "data" / "processed" / "fccl_process_deviation_features.csv"
-MODEL_PATH = ROOT / "models" / "random_forest_anomaly.joblib"
+EQUIPMENT_MODEL_PATH = ROOT / "models" / "equipment_anomaly_model.joblib"
 EQUIPMENT_SPECS_PATH = ROOT / "data" / "processed" / "fccl_equipment_specs.json"
 
 # Custom Sleek Industrial CSS
@@ -152,10 +152,10 @@ def load_data():
 
 
 @st.cache_resource
-def load_anomaly_model():
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"找不到專案模型：{MODEL_PATH}")
-    return joblib.load(MODEL_PATH)
+def load_equipment_anomaly_model():
+    if not EQUIPMENT_MODEL_PATH.exists():
+        raise FileNotFoundError(f"找不到設備異常分類模型：{EQUIPMENT_MODEL_PATH}")
+    return joblib.load(EQUIPMENT_MODEL_PATH)
 
 
 @st.cache_data
@@ -181,10 +181,9 @@ EQUIPMENT_PARAMETERS = [
 
 
 def recommend_equipment_adjustments(row, history, model, feature_columns):
-    """Find model-scored candidate settings for equipment parameters deviating by at least 1%."""
-    baseline = pd.DataFrame([{column: row[column] for column in feature_columns}])
-    classifier = model.named_steps["classifier"]
-    classes = list(classifier.classes_)
+    """Use the equipment model to score parameter candidates for rows deviating by 1% or more."""
+    baseline = build_equipment_model_input(row, feature_columns)
+    classes = list(model.named_steps["classifier"].classes_)
     anomaly_index = classes.index(1)
     baseline_probability = float(model.predict_proba(baseline)[0][anomaly_index])
 
@@ -200,16 +199,13 @@ def recommend_equipment_adjustments(row, history, model, feature_columns):
     recommendations = []
     for key, label, _unit in EQUIPMENT_PARAMETERS:
         actual_col, target_col = f"{key}_actual", f"{key}_target"
-        deviation_col = f"{key}_deviation_pct"
-        if actual_col not in feature_columns or target_col not in feature_columns:
+        if f"{key}_deviation" not in feature_columns or target_col not in row.index:
             continue
         actual = pd.to_numeric(pd.Series([row.get(actual_col)]), errors="coerce").iloc[0]
         target = pd.to_numeric(pd.Series([row.get(target_col)]), errors="coerce").iloc[0]
         if pd.isna(actual) or pd.isna(target):
             continue
-        deviation_pct = pd.to_numeric(pd.Series([row.get(deviation_col)]), errors="coerce").iloc[0]
-        if pd.isna(deviation_pct):
-            deviation_pct = ((actual - target) / target * 100) if target else 0.0
+        deviation_pct = ((actual - target) / target * 100) if target else 0.0
         if abs(float(deviation_pct)) < 1.0:
             continue
 
@@ -222,8 +218,11 @@ def recommend_equipment_adjustments(row, history, model, feature_columns):
 
         best_value, best_probability = float(actual), baseline_probability
         for candidate_value in candidates:
-            trial = baseline.copy()
-            trial.loc[0, actual_col] = float(candidate_value)
+            trial = build_equipment_model_input(
+                row,
+                feature_columns,
+                actual_overrides={actual_col: float(candidate_value)},
+            )
             probability = float(model.predict_proba(trial)[0][anomaly_index])
             if probability < best_probability:
                 best_value, best_probability = float(candidate_value), probability
@@ -241,6 +240,38 @@ def recommend_equipment_adjustments(row, history, model, feature_columns):
             "機率下降（百分點）": (baseline_probability - best_probability) * 100,
         })
     return pd.DataFrame(recommendations).sort_values("偏差率（%）", key=lambda values: values.abs(), ascending=False) if recommendations else pd.DataFrame()
+
+
+def build_equipment_model_input(row, feature_columns, actual_overrides=None):
+    """Build the deviation features expected by equipment_anomaly_model.joblib."""
+    actual_overrides = actual_overrides or {}
+    values = {}
+    for column in feature_columns:
+        if column in ("Line", "Product_Model"):
+            values[column] = row[column]
+            continue
+
+        if column.endswith("_deviation_pct"):
+            parameter_key = column.removesuffix("_deviation_pct")
+            target = pd.to_numeric(pd.Series([row.get(f"{parameter_key}_target")]), errors="coerce").iloc[0]
+            actual = pd.to_numeric(
+                pd.Series([actual_overrides.get(f"{parameter_key}_actual", row.get(f"{parameter_key}_actual"))]),
+                errors="coerce",
+            ).iloc[0]
+            deviation = actual - target
+            values[column] = deviation / target * 100 if pd.notna(target) and target != 0 else np.nan
+        elif column.endswith("_deviation"):
+            parameter_key = column.removesuffix("_deviation")
+            target = pd.to_numeric(pd.Series([row.get(f"{parameter_key}_target")]), errors="coerce").iloc[0]
+            actual = pd.to_numeric(
+                pd.Series([actual_overrides.get(f"{parameter_key}_actual", row.get(f"{parameter_key}_actual"))]),
+                errors="coerce",
+            ).iloc[0]
+            values[column] = actual - target if pd.notna(actual) and pd.notna(target) else np.nan
+        else:
+            values[column] = row.get(column, np.nan)
+
+    return pd.DataFrame([values], columns=feature_columns)
 
 try:
     df_raw = load_data()
@@ -541,12 +572,13 @@ with tabs[3]:
     st.markdown("### 🛠️ 製程參數調機即時模擬器 (Parameter Optimizer)")
     st.caption("依目前批次的產品型號載入適用設備參數與 Recipe Target，再以專案模型評估調整值。")
 
-    model_bundle = load_anomaly_model()
+    model_bundle = load_equipment_anomaly_model()
     model = model_bundle["model"]
     feature_columns = model_bundle["feature_columns"]
     recommendations = recommend_equipment_adjustments(current_batch, df_raw, model, feature_columns)
     batch_id = str(current_batch["Batch_ID"])
     st.caption(f"目前產品型號：{current_batch['Product_Model']}｜批次：{batch_id}")
+    st.caption("設備異常預測使用 equipment_anomaly_model.joblib；輸入值會轉換成設備參數偏差後送入模型。")
 
     st.subheader("異常設備參數")
     if recommendations.empty:
@@ -585,7 +617,7 @@ with tabs[3]:
         visible_parameters = []
         for index, (parameter_key, label, unit) in enumerate(EQUIPMENT_PARAMETERS):
             actual_col, target_col = f"{parameter_key}_actual", f"{parameter_key}_target"
-            if actual_col not in feature_columns or target_col not in feature_columns:
+            if f"{parameter_key}_deviation" not in feature_columns:
                 continue
             actual = pd.to_numeric(pd.Series([current_batch.get(actual_col)]), errors="coerce").iloc[0]
             target = pd.to_numeric(pd.Series([current_batch.get(target_col)]), errors="coerce").iloc[0]
@@ -604,17 +636,15 @@ with tabs[3]:
         submitted = st.form_submit_button("以設備參數執行模型預測", type="primary")
 
     if submitted:
-        model_input = pd.DataFrame([{column: current_batch[column] for column in feature_columns}])
-        for column, value in adjusted.items():
-            model_input.loc[0, column] = value
+        model_input = build_equipment_model_input(current_batch, feature_columns, adjusted)
         class_ids = list(model.named_steps["classifier"].classes_)
-        st.session_state[f"simulation_result_{batch_id}"] = {
+        st.session_state[f"equipment_simulation_result_{batch_id}"] = {
             "predicted_class": int(model.predict(model_input)[0]),
             "anomaly_probability": float(model.predict_proba(model_input)[0][class_ids.index(1)]),
             "adjusted": adjusted,
         }
 
-    simulation = st.session_state.get(f"simulation_result_{batch_id}")
+    simulation = st.session_state.get(f"equipment_simulation_result_{batch_id}")
     result_column, profile_column = st.columns([1, 2])
     if simulation:
         with result_column:
