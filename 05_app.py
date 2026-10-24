@@ -675,7 +675,7 @@ with tabs[3]:
         }
 
     simulation = st.session_state.get(f"equipment_simulation_result_{batch_id}")
-    result_column, profile_column = st.columns([1, 2])
+    result_column, comparison_column = st.columns([1, 2])
     if simulation:
         with result_column:
             st.subheader("模型預測結果")
@@ -692,21 +692,17 @@ with tabs[3]:
                 "模擬調整值": adjusted_value,
             })
         comparison = pd.DataFrame(changes)
-        with profile_column:
+        with comparison_column:
             st.subheader("設備參數調整比較")
-            st.dataframe(comparison.round(4), hide_index=True, use_container_width=True)
-            point_data = pd.DataFrame({
-                "測點": [f"P{i}" for i in range(1, 11)],
-                "原始厚度": [float(current_batch[f"Point_{i}_um"]) for i in range(1, 11)],
-                "LSL": float(current_batch["LSL_um"]),
-                "USL": float(current_batch["USL_um"]),
-            })
-            st.subheader("批次原始厚度剖面")
-            st.line_chart(point_data, x="測點", y=["原始厚度", "LSL", "USL"])
-            st.caption("joblib 模型只預測異常分類與機率，不預測調整後的厚度剖面；圖中保留原始量測。")
+            st.dataframe(
+                comparison.round(4),
+                hide_index=True,
+                width="stretch",
+                alt="模擬調整前後設備參數比較",
+            )
 
     else:
-        with profile_column:
+        with comparison_column:
             st.info("輸入本產品型號適用的模擬參數後，按「以設備參數執行模型預測」查看結果。")
 
 # ==========================================
