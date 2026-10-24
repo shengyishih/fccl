@@ -714,7 +714,18 @@ with tabs[4]:
     st.caption("依設備技術參數規格表，按目前產線與產品型號列出 WS-01 至 WS-09 的 Recipe Target、公差範圍及 QCP 管制項目。")
 
     equipment_specs = load_equipment_specs()
-    active_line = str(current_batch["Line"])
+    available_lines = sorted({spec["line"] for spec in equipment_specs.values()})
+    default_line = str(line_key) if line_key is not None else str(current_batch["Line"])
+    if line_key is None:
+        active_line = st.selectbox(
+            "產線",
+            available_lines,
+            index=available_lines.index(default_line) if default_line in available_lines else 0,
+            key="equipment_spec_line_all",
+        )
+    else:
+        active_line = str(line_key)
+        st.caption(f"產線：{active_line}（依左側產線篩選同步）")
     line_models = sorted(
         model for model, spec in equipment_specs.items()
         if spec["line"] == active_line
@@ -727,7 +738,7 @@ with tabs[4]:
             "產品型號",
             line_models,
             index=line_models.index(preferred_model) if preferred_model in line_models else 0,
-            key="equipment_spec_model",
+            key=f"equipment_spec_model_{active_line}",
         )
         product_spec = equipment_specs[selected_model]
 
