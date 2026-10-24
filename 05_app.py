@@ -570,29 +570,12 @@ with tabs[2]:
 # ==========================================
 with tabs[3]:
     st.markdown("### 🛠️ 製程參數調機即時模擬器 (Parameter Optimizer)")
-    st.caption("依目前批次的產品型號載入適用設備參數與 Recipe Target，再以專案模型評估調整值。")
 
     model_bundle = load_equipment_anomaly_model()
     model = model_bundle["model"]
     feature_columns = model_bundle["feature_columns"]
     recommendations = recommend_equipment_adjustments(current_batch, df_raw, model, feature_columns)
     batch_id = str(current_batch["Batch_ID"])
-    st.caption(f"目前產品型號：{current_batch['Product_Model']}｜批次：{batch_id}")
-    st.caption("設備異常預測使用 equipment_anomaly_model.joblib；輸入值會轉換成設備參數偏差後送入模型。")
-
-    baseline_input = build_equipment_model_input(current_batch, feature_columns)
-    class_ids = list(model.named_steps["classifier"].classes_)
-    anomaly_probability = float(model.predict_proba(baseline_input)[0][class_ids.index(1)])
-    equipment_prediction = int(model.predict(baseline_input)[0])
-    equipment_metric, probability_metric = st.columns(2)
-    equipment_metric.metric("目前設備模型判定", "異常" if equipment_prediction == 1 else "正常")
-    probability_metric.metric("設備異常機率", f"{anomaly_probability:.1%}")
-    if (current_batch["QC_Result"] == "NG") != (equipment_prediction == 1):
-        st.warning(
-            f"批次 QC 判定為 {current_batch['QC_Result']}，設備偏差模型判定為 "
-            f"{'異常' if equipment_prediction == 1 else '正常'}。此模型只使用設備參數偏差、產線與型號，"
-            "不使用厚度測點；兩種判定不一致時，請以 QC 檢測結果及工程確認為準。"
-        )
 
     st.subheader("目前批次設備參數偏差")
     parameter_status_rows = []
