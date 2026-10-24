@@ -32,42 +32,46 @@ MODEL_PATH = ROOT / "models" / "random_forest_anomaly.joblib"
 st.markdown("""
 <style>
     .stApp {
-        background-color: #0b0f17;
-        color: #f8fafc;
+        background-color: #ffffff;
+        color: #0f172a;
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
+    section[data-testid="stSidebar"] {
+        background-color: #0b0f17;
+        color: #f8fafc;
+    }
     .metric-card {
-        background-color: #0f172a;
-        border: 1px solid #1e293b;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 14px 18px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
     }
     .metric-title {
-        color: #94a3b8;
+        color: #64748b;
         font-size: 0.8rem;
         margin-bottom: 4px;
         font-weight: 500;
     }
     .metric-val {
-        color: #ffffff;
+        color: #0f172a;
         font-size: 1.5rem;
         font-family: 'JetBrains Mono', monospace;
         font-weight: 800;
     }
     .badge-pass {
-        background-color: rgba(16, 185, 129, 0.2);
-        color: #34d399;
-        border: 1px solid rgba(16, 185, 129, 0.4);
+        background-color: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
         padding: 2px 8px;
         border-radius: 4px;
         font-weight: bold;
         font-size: 0.8rem;
     }
     .badge-ng {
-        background-color: rgba(239, 68, 68, 0.2);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.4);
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
         padding: 2px 8px;
         border-radius: 4px;
         font-weight: bold;
