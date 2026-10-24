@@ -331,8 +331,7 @@ tabs = st.tabs([
 with tabs[0]:
     st.markdown("### 📋 批次全數據庫與導出")
     database_view = df_filtered[[
-        'Batch_ID', 'Sample_Date', 'Line', 'Product_Model', 'Nominal_Thickness_um',
-        'Thickness_Mean_um', 'Thickness_Std_um', 'Thickness_Range_um', 'cpk', 'QC_Result', 'Anomaly_Pattern'
+        'Batch_ID', 'Sample_Date', 'Line', 'Product_Model', 'cpk', 'QC_Result', 'Anomaly_Pattern'
     ]].copy()
     database_view["Line"] = database_view["Line"].map({"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}).fillna(database_view["Line"])
     database_view["QC_Result"] = database_view["QC_Result"].map({"PASS": "合格", "NG": "不合格"}).fillna(database_view["QC_Result"])
@@ -343,10 +342,6 @@ with tabs[0]:
         "Sample_Date": "取樣日期",
         "Line": "生產線",
         "Product_Model": "產品型號",
-        "Nominal_Thickness_um": "標稱厚度（µm）",
-        "Thickness_Mean_um": "平均厚度（µm）",
-        "Thickness_Std_um": "厚度標準差（µm）",
-        "Thickness_Range_um": "厚度全距（µm）",
         "cpk": "Cpk",
         "QC_Result": "品質判定",
         "Anomaly_Pattern": "截面異常模式",
