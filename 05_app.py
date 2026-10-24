@@ -157,16 +157,16 @@ def load_anomaly_model():
 
 
 EQUIPMENT_PARAMETERS = [
-    ("speed", "產線速度"),
-    ("unwind", "放卷張力"),
-    ("viscosity", "膠液黏度"),
-    ("gap", "塗佈模頭間隙"),
-    ("pump", "計量泵流量"),
-    ("wet", "濕膜厚度"),
-    ("temp", "烘箱溫度"),
-    ("pressure", "壓合壓力"),
-    ("cure", "熟化溫度"),
-    ("rewind", "收卷張力"),
+    ("speed", "產線速度", "m/min"),
+    ("unwind", "放捲張力", "N/m"),
+    ("viscosity", "膠液黏度", "mPa·s"),
+    ("gap", "模頭開縫", "µm"),
+    ("pump", "計量泵流量", "mL/min"),
+    ("wet", "塗布濕膜厚度", "µm"),
+    ("temp", "亞胺化溫度", "°C"),
+    ("pressure", "壓合線壓力", "N/mm"),
+    ("cure", "熟化溫度", "°C"),
+    ("rewind", "收捲張力", "N/m"),
 ]
 
 
@@ -188,7 +188,7 @@ def recommend_equipment_adjustments(row, history, model, feature_columns):
         reference = history
 
     recommendations = []
-    for key, label in EQUIPMENT_PARAMETERS:
+    for key, label, _unit in EQUIPMENT_PARAMETERS:
         actual_col, target_col = f"{key}_actual", f"{key}_target"
         deviation_col = f"{key}_deviation_pct"
         if actual_col not in feature_columns or target_col not in feature_columns:
@@ -220,6 +220,7 @@ def recommend_equipment_adjustments(row, history, model, feature_columns):
 
         recommendations.append({
             "設備參數": label,
+            "單位": _unit,
             "目前實際值": float(actual),
             "設備目標值": float(target),
             "偏差率（%）": float(deviation_pct),
@@ -510,17 +511,28 @@ with tabs[2]:
     st.markdown("### ⚙️ 機台製程參數偏差瀑布圖與缺陷成因關聯")
     st.caption("對比目標設定值 Target 與實際生產讀值 Actual 之偏差百分比")
 
+    parameter_impacts = {
+        "speed": "線速變動會影響塗布與乾燥時間。",
+        "unwind": "放卷張力會影響進料穩定與膜面伸展。",
+        "viscosity": "黏度會影響膠液流變與塗布穩定度。",
+        "gap": "模頭開縫會影響塗布量與橫向均勻度。",
+        "pump": "計量泵流量會影響塗布量與整體厚度。",
+        "wet": "濕膜厚度會影響乾燥後的基材厚度。",
+        "temp": "亞胺化溫度會影響固化與尺寸穩定。",
+        "pressure": "壓合線壓力會影響貼合與厚度分布。",
+        "cure": "熟化溫度會影響黏著與殘餘應力。",
+        "rewind": "收捲張力會影響捲芯壓痕與卷材平整度。",
+    }
     params_data = [
-        {"name": "塗佈模頭間隙 (Die Gap)", "dev_pct": current_batch.get('gap_deviation_pct', 0), "impact": "左右失衡引起 Wedge 楔形偏差"},
-        {"name": "注膠計量泵 (Pump Flow)", "dev_pct": current_batch.get('pump_deviation_pct', 0), "impact": "流量偏差引起 Mean Shift 全幅整體偏移"},
-        {"name": "貼合壓輪壓力 (Nip Pressure)", "dev_pct": current_batch.get('pressure_deviation_pct', 0), "impact": "壓力過大撓曲引致 Center Bulge 中間突起"},
-        {"name": "樹脂膠水黏度 (Viscosity)", "dev_pct": current_batch.get('viscosity_deviation_pct', 0), "impact": "流變性波動影響塗膜剪切穩定度"},
-        {"name": "乾燥烘箱溫度 (Oven Temp)", "dev_pct": current_batch.get('temp_deviation_pct', 0), "impact": "熱風溫差影響溶劑揮發與膜面應力"},
-        {"name": "塗佈生產線速 (Line Speed)", "dev_pct": current_batch.get('speed_deviation_pct', 0), "impact": "線速不穩影響濕膜厚度面密度"},
-        {"name": "在線濕膜厚度 (Wet Film)", "dev_pct": current_batch.get('wet_deviation_pct', 0), "impact": "直接決定乾燥熟化後基材厚度"},
-        {"name": "熟化硬化溫度 (Curing Temp)", "dev_pct": current_batch.get('cure_deviation_pct', 0), "impact": "決定亞胺化度與熱收縮率"},
-        {"name": "放卷張力 (Unwind Tension)", "dev_pct": current_batch.get('unwind_deviation_pct', 0), "impact": "進料張力鬆弛引起膜面拉伸漂移"},
-        {"name": "收卷張力 (Rewind Tension)", "dev_pct": current_batch.get('rewind_deviation_pct', 0), "impact": "錐度張力衰減不當引起捲芯壓陷"}
+        {
+            "name": label,
+            "dev_pct": current_batch.get(f"{key}_deviation_pct"),
+            "impact": parameter_impacts[key],
+        }
+        for key, label, _unit in EQUIPMENT_PARAMETERS
+        if pd.notna(current_batch.get(f"{key}_target"))
+        and pd.notna(current_batch.get(f"{key}_actual"))
+        and pd.notna(current_batch.get(f"{key}_deviation_pct"))
     ]
 
     p_df = pd.DataFrame(params_data)
@@ -554,12 +566,14 @@ with tabs[2]:
 # ==========================================
 with tabs[3]:
     st.markdown("### 🛠️ 製程參數調機即時模擬器 (Parameter Optimizer)")
-    st.caption("先檢視偏離目標的設備參數，再以專案異常分類模型試算調整建議。")
+    st.caption("依目前批次的產品型號載入適用設備參數與 Recipe Target，再以專案模型評估調整值。")
 
     model_bundle = load_anomaly_model()
     model = model_bundle["model"]
     feature_columns = model_bundle["feature_columns"]
     recommendations = recommend_equipment_adjustments(current_batch, df_raw, model, feature_columns)
+    batch_id = str(current_batch["Batch_ID"])
+    st.caption(f"目前產品型號：{current_batch['Product_Model']}｜批次：{batch_id}")
 
     st.subheader("異常設備參數")
     if recommendations.empty:
@@ -572,7 +586,7 @@ with tabs[3]:
 
         st.subheader("模型建議調整數據")
         recommendation_view = recommendations[[
-            "設備參數", "建議調整值", "建議方向", "目前異常機率（%）",
+            "設備參數", "建議調整值", "單位", "建議方向", "目前異常機率（%）",
             "建議後異常機率（%）", "機率下降（百分點）"
         ]].copy()
         recommendation_view["建議調整值"] = recommendation_view["建議調整值"].round(4)
@@ -582,115 +596,105 @@ with tabs[3]:
         if recommendations["機率下降（百分點）"].max() <= 0:
             st.info("模型在候選範圍內未找到可降低異常機率的單項調整，建議維持目前設定並依製程規範檢查。")
 
-    col_sim_ctl, col_sim_view = st.columns([1, 2])
+        recommendation_labels = recommendations["設備參數"].tolist()
+        selected_recommendation = st.selectbox("選擇要帶入的模型建議", recommendation_labels, key=f"recommendation_{batch_id}")
+        if st.button("套用建議值到模擬參數", key=f"apply_recommendation_{batch_id}"):
+            chosen = recommendations.loc[recommendations["設備參數"].eq(selected_recommendation)].iloc[0]
+            parameter_key = next(key for key, label, _unit in EQUIPMENT_PARAMETERS if label == selected_recommendation)
+            st.session_state[f"sim_{batch_id}_{parameter_key}_actual"] = float(chosen["建議調整值"])
+            st.rerun()
 
-    with col_sim_ctl:
-        st.markdown("#### 🎛️ 調機旋鈕 (Control Knobs)")
-        sim_gap = st.slider("模頭左右間隙差 (Die Gap Tilt µm)", -3.0, 3.0, 0.0, 0.1, help="修正 Wedge 單側傾斜")
-        sim_press = st.slider("壓輪中凸壓力補償 (Nip Crown kg/cm)", -15.0, 15.0, 0.0, 0.5, help="修正 Center Bulge 中間突起")
-        sim_pump = st.slider("注膠泵流量微調 (Pump Flow %)", -8.0, 8.0, 0.0, 0.2, help="修正 Mean Shift 整體偏移")
-        sim_oven = st.slider("烘箱溫區熱平衡 (Dryer Balance °C)", -5.0, 5.0, 0.0, 0.5, help="修正溫度漂移")
-        sim_clean = st.checkbox("執行模唇擦拭與過濾器排查 (消除 Local Spike)")
+    st.subheader("產品型號適用設備參數")
+    adjusted = {}
+    with st.form(key=f"simulation_form_{batch_id}"):
+        st.caption("參數名稱、單位及 Recipe Target 取自目前產品型號的專案資料；不適用或缺值的參數不顯示。")
+        input_columns = st.columns(2)
+        visible_parameters = []
+        for index, (parameter_key, label, unit) in enumerate(EQUIPMENT_PARAMETERS):
+            actual_col, target_col = f"{parameter_key}_actual", f"{parameter_key}_target"
+            if actual_col not in feature_columns or target_col not in feature_columns:
+                continue
+            actual = pd.to_numeric(pd.Series([current_batch.get(actual_col)]), errors="coerce").iloc[0]
+            target = pd.to_numeric(pd.Series([current_batch.get(target_col)]), errors="coerce").iloc[0]
+            if pd.isna(actual) or pd.isna(target):
+                continue
+            visible_parameters.append((parameter_key, label, unit, actual_col, float(actual), float(target)))
+            widget_key = f"sim_{batch_id}_{actual_col}"
+            with input_columns[index % 2]:
+                adjusted[actual_col] = st.number_input(
+                    f"{label}（{unit}）｜產品目標 {target:g}",
+                    value=float(actual),
+                    step=max(abs(float(target)) * 0.01, 0.01),
+                    format="%.4f",
+                    key=widget_key,
+                )
+        submitted = st.form_submit_button("以設備參數執行模型預測", type="primary")
 
-    with col_sim_view:
-        # Calculate simulated points
-        sim_pts = []
-        for i, pt in enumerate(points):
-            val = pt
-            # Gap tilt
-            val += sim_gap * ((i / 9) - 0.5)
-            # Nip crown
-            center_fact = 1 - ((i - 4.5) / 4.5) ** 2
-            val += (sim_press * 0.08) * center_fact
-            # Pump flow
-            val += (sim_pump / 100) * nominal
-            # Dryer balance
-            val += (sim_oven * 0.04) * (1 - center_fact * 0.5)
-            # Spike purge
-            if sim_clean and pattern == 'Local_Spike':
-                other_avg = (sum(points) - pt) / 9
-                if abs(pt - other_avg) > tol * 0.8:
-                    val = other_avg
-            sim_pts.append(val)
-
-        sim_mean = np.mean(sim_pts)
-        sim_std = max(0.01, np.std(sim_pts, ddof=1))
-        sim_cpk = min((usl - sim_mean)/(3*sim_std), (sim_mean - lsl)/(3*sim_std))
-
-        # Evaluate the same adjustment with the project's trained anomaly model.
+    if submitted:
         model_input = pd.DataFrame([{column: current_batch[column] for column in feature_columns}])
-        for i, value in enumerate(sim_pts, start=1):
-            model_input.loc[0, f"Point_{i}_um"] = value
-        model_input.loc[0, "Thickness_Mean_um"] = sim_mean
-        model_input.loc[0, "Thickness_Std_um"] = sim_std
-        model_input.loc[0, "Thickness_Range_um"] = max(sim_pts) - min(sim_pts)
-        model_input.loc[0, "gap_actual"] = float(current_batch["gap_actual"]) + sim_gap
-        model_input.loc[0, "pressure_actual"] = float(current_batch["pressure_actual"]) + sim_press * 0.05
-        model_input.loc[0, "pump_actual"] = float(current_batch["pump_actual"]) * (1 + sim_pump / 100)
-        model_input.loc[0, "temp_actual"] = float(current_batch["temp_actual"]) + sim_oven
-        predicted_class = int(model.predict(model_input)[0])
-        model_classes = list(model.named_steps["classifier"].classes_)
-        anomaly_probability = float(model.predict_proba(model_input)[0][model_classes.index(1)])
+        for column, value in adjusted.items():
+            model_input.loc[0, column] = value
+        class_ids = list(model.named_steps["classifier"].classes_)
+        st.session_state[f"simulation_result_{batch_id}"] = {
+            "predicted_class": int(model.predict(model_input)[0]),
+            "anomaly_probability": float(model.predict_proba(model_input)[0][class_ids.index(1)]),
+            "adjusted": adjusted,
+        }
 
-        fig_sim = go.Figure()
-        fig_sim.add_hrect(y0=lsl, y1=usl, fillcolor="rgba(16, 185, 129, 0.08)", line_width=0)
-        fig_sim.add_hline(y=nominal, line_dash="dot", line_color="#38bdf8")
+    simulation = st.session_state.get(f"simulation_result_{batch_id}")
+    result_column, profile_column = st.columns([1, 2])
+    if simulation:
+        with result_column:
+            st.subheader("模型預測結果")
+            st.metric("預測判定", "異常" if simulation["predicted_class"] == 1 else "正常")
+            st.metric("異常機率", f"{simulation['anomaly_probability']:.1%}")
+        changes = []
+        for parameter_key, label, unit, actual_col, actual, target in visible_parameters:
+            adjusted_value = float(simulation["adjusted"].get(actual_col, actual))
+            changes.append({
+                "設備參數": label,
+                "單位": unit,
+                "Recipe Target": target,
+                "批次實際值": actual,
+                "模擬調整值": adjusted_value,
+            })
+        comparison = pd.DataFrame(changes)
+        with profile_column:
+            st.subheader("設備參數調整比較")
+            st.dataframe(comparison.round(4), hide_index=True, use_container_width=True)
+            point_data = pd.DataFrame({
+                "測點": [f"P{i}" for i in range(1, 11)],
+                "原始厚度": [float(current_batch[f"Point_{i}_um"]) for i in range(1, 11)],
+                "LSL": float(current_batch["LSL_um"]),
+                "USL": float(current_batch["USL_um"]),
+            })
+            st.subheader("批次原始厚度剖面")
+            st.line_chart(point_data, x="測點", y=["原始厚度", "LSL", "USL"])
+            st.caption("joblib 模型只預測異常分類與機率，不預測調整後的厚度剖面；圖中保留原始量測。")
 
-        # Original
-        fig_sim.add_trace(go.Scatter(
-            x=[f"P{i}" for i in range(1, 11)], y=points,
-            mode='lines+markers', name='調機前實測',
-            line=dict(color='#f43f5e', dash='dash', width=2)
-        ))
-
-        # Simulated
-        fig_sim.add_trace(go.Scatter(
-            x=[f"P{i}" for i in range(1, 11)], y=sim_pts,
-            mode='lines+markers', name='調機後預估剖面',
-            line=dict(color='#10b981', width=3),
-            marker=dict(size=8, color='#ffffff', line=dict(color='#10b981', width=2))
-        ))
-
-        fig_sim.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="#0f172a",
-            plot_bgcolor="#090d16",
-            title=f"調機前後對比預覽 (預估 Cpk: {current_batch['cpk']:.2f} ───► {sim_cpk:.2f})",
-            height=360,
-            margin=dict(l=40, r=40, t=50, b=40),
-            yaxis=dict(title="基材厚度 (µm)", gridcolor="#1e293b")
+        work_order_lines = [
+            f"{change['設備參數']}: {change['批次實際值']:.4f} → {change['模擬調整值']:.4f} {change['單位']}"
+            for change in changes
+            if not np.isclose(change["批次實際值"], change["模擬調整值"])
+        ]
+        work_order_text = "\n".join([
+            "【FCCL 製程參數模擬工單】",
+            f"批次：{batch_id}",
+            f"產品型號：{current_batch['Product_Model']}",
+            f"模型預測：{'異常' if simulation['predicted_class'] == 1 else '正常'}",
+            f"異常機率：{simulation['anomaly_probability']:.1%}",
+            "調整項目：",
+            *(work_order_lines or ["無參數變更"]),
+        ])
+        st.download_button(
+            "📄 下載製程調機模擬工單 (.txt)",
+            data=work_order_text,
+            file_name=f"FCCL_WorkOrder_{batch_id}.txt",
+            mime="text/plain",
         )
-
-        st.plotly_chart(fig_sim, use_container_width=True)
-
-        model_col1, model_col2 = st.columns(2)
-        model_col1.metric("joblib 模型預測", "異常" if predicted_class == 1 else "正常")
-        model_col2.metric("模型異常機率", f"{anomaly_probability:.1%}")
-        st.caption("模型使用專案內 random_forest_anomaly.joblib；模擬旋鈕會更新對應設備參數及十點厚度特徵後再評估。")
-
-    # Work Order Recipe Text
-    work_order_text = f"""【FCCL 生產線製程調機改善工單 (Work Order)】
-批號: {current_batch['Batch_ID']} | 型號: {current_batch['Product_Model']} | 標稱厚度: {nominal}µm ±{tol}µm
-檢驗異常模式: {current_batch['Anomaly_Pattern']}
-
-[調機參數補償指令]
-1. 塗佈模頭左右間隙補償 (Die Gap Tilt): {sim_gap:+.2f} µm
-2. 貼合壓輪壓力微調 (Nip Pressure): {sim_press:+.1f} kg/cm
-3. 精密注膠泵轉速微調 (Pump Flow): {sim_pump:+.2f} %
-4. 烘箱熱風溫控補償 (Dryer Temp): {sim_oven:+.1f} °C
-5. 模頭唇口擦拭與濾芯維護: {'已排查完成' if sim_clean else '維持常態'}
-
-[預期品質收斂]
-預估厚度均值: {sim_mean:.2f} µm (原 {current_batch['Thickness_Mean_um']:.2f} µm)
-預估製程能力 Cpk: {sim_cpk:.2f} (原 {current_batch['cpk']:.2f})
-製程工程師簽核: PASS (可直接套用機台調機)
-"""
-    st.download_button(
-        "📄 下載製程調機改善工單 (.txt)",
-        data=work_order_text,
-        file_name=f"FCCL_WorkOrder_{current_batch['Batch_ID']}.txt",
-        mime="text/plain"
-    )
+    else:
+        with profile_column:
+            st.info("輸入本產品型號適用的模擬參數後，按「以設備參數執行模型預測」查看結果。")
 
 # ==========================================
 # TAB 5: QC Inspection Method Guide (IPC-TM-650)
