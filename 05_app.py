@@ -155,6 +155,82 @@ def load_anomaly_model():
         raise FileNotFoundError(f"找不到專案模型：{MODEL_PATH}")
     return joblib.load(MODEL_PATH)
 
+
+EQUIPMENT_PARAMETERS = [
+    ("speed", "產線速度"),
+    ("unwind", "放卷張力"),
+    ("viscosity", "膠液黏度"),
+    ("gap", "塗佈模頭間隙"),
+    ("pump", "計量泵流量"),
+    ("wet", "濕膜厚度"),
+    ("temp", "烘箱溫度"),
+    ("pressure", "壓合壓力"),
+    ("cure", "熟化溫度"),
+    ("rewind", "收卷張力"),
+]
+
+
+def recommend_equipment_adjustments(row, history, model, feature_columns):
+    """Find model-scored candidate settings for equipment parameters deviating by at least 1%."""
+    baseline = pd.DataFrame([{column: row[column] for column in feature_columns}])
+    classifier = model.named_steps["classifier"]
+    classes = list(classifier.classes_)
+    anomaly_index = classes.index(1)
+    baseline_probability = float(model.predict_proba(baseline)[0][anomaly_index])
+
+    line_product = history[
+        history["Line"].astype(str).eq(str(row["Line"]))
+        & history["Product_Model"].astype(str).eq(str(row["Product_Model"]))
+    ]
+    product_history = history[history["Product_Model"].astype(str).eq(str(row["Product_Model"]))]
+    reference = line_product if len(line_product) >= 5 else product_history
+    if len(reference) < 5:
+        reference = history
+
+    recommendations = []
+    for key, label in EQUIPMENT_PARAMETERS:
+        actual_col, target_col = f"{key}_actual", f"{key}_target"
+        deviation_col = f"{key}_deviation_pct"
+        if actual_col not in feature_columns or target_col not in feature_columns:
+            continue
+        actual = pd.to_numeric(pd.Series([row.get(actual_col)]), errors="coerce").iloc[0]
+        target = pd.to_numeric(pd.Series([row.get(target_col)]), errors="coerce").iloc[0]
+        if pd.isna(actual) or pd.isna(target):
+            continue
+        deviation_pct = pd.to_numeric(pd.Series([row.get(deviation_col)]), errors="coerce").iloc[0]
+        if pd.isna(deviation_pct):
+            deviation_pct = ((actual - target) / target * 100) if target else 0.0
+        if abs(float(deviation_pct)) < 1.0:
+            continue
+
+        observed = pd.to_numeric(reference[actual_col], errors="coerce").dropna()
+        if observed.empty:
+            continue
+        lower, upper = observed.quantile(0.05), observed.quantile(0.95)
+        candidates = set(np.linspace(lower, upper, 21).tolist())
+        candidates.update((float(actual), float(target)))
+
+        best_value, best_probability = float(actual), baseline_probability
+        for candidate_value in candidates:
+            trial = baseline.copy()
+            trial.loc[0, actual_col] = float(candidate_value)
+            probability = float(model.predict_proba(trial)[0][anomaly_index])
+            if probability < best_probability:
+                best_value, best_probability = float(candidate_value), probability
+
+        recommendations.append({
+            "設備參數": label,
+            "目前實際值": float(actual),
+            "設備目標值": float(target),
+            "偏差率（%）": float(deviation_pct),
+            "建議調整值": best_value,
+            "建議方向": "維持現值" if np.isclose(best_value, actual) else ("降低" if best_value < actual else "提高"),
+            "目前異常機率（%）": baseline_probability * 100,
+            "建議後異常機率（%）": best_probability * 100,
+            "機率下降（百分點）": (baseline_probability - best_probability) * 100,
+        })
+    return pd.DataFrame(recommendations).sort_values("偏差率（%）", key=lambda values: values.abs(), ascending=False) if recommendations else pd.DataFrame()
+
 try:
     df_raw = load_data()
 except Exception as e:
@@ -478,7 +554,33 @@ with tabs[2]:
 # ==========================================
 with tabs[3]:
     st.markdown("### 🛠️ 製程參數調機即時模擬器 (Parameter Optimizer)")
-    st.caption("透過物理逆向模型即時反推調機參數，預覽修正後厚度剖面與 Cpk 恢復")
+    st.caption("先檢視偏離目標的設備參數，再以專案異常分類模型試算調整建議。")
+
+    model_bundle = load_anomaly_model()
+    model = model_bundle["model"]
+    feature_columns = model_bundle["feature_columns"]
+    recommendations = recommend_equipment_adjustments(current_batch, df_raw, model, feature_columns)
+
+    st.subheader("異常設備參數")
+    if recommendations.empty:
+        st.info("目前批次沒有設備參數偏差達 1% 的項目。")
+    else:
+        anomaly_view = recommendations[["設備參數", "設備目標值", "目前實際值", "偏差率（%）"]].copy()
+        anomaly_view[["設備目標值", "目前實際值"]] = anomaly_view[["設備目標值", "目前實際值"]].round(4)
+        anomaly_view["偏差率（%）"] = anomaly_view["偏差率（%）"].round(2)
+        st.dataframe(anomaly_view, hide_index=True, use_container_width=True)
+
+        st.subheader("模型建議調整數據")
+        recommendation_view = recommendations[[
+            "設備參數", "建議調整值", "建議方向", "目前異常機率（%）",
+            "建議後異常機率（%）", "機率下降（百分點）"
+        ]].copy()
+        recommendation_view["建議調整值"] = recommendation_view["建議調整值"].round(4)
+        for column in ["目前異常機率（%）", "建議後異常機率（%）", "機率下降（百分點）"]:
+            recommendation_view[column] = recommendation_view[column].round(2)
+        st.dataframe(recommendation_view, hide_index=True, use_container_width=True)
+        if recommendations["機率下降（百分點）"].max() <= 0:
+            st.info("模型在候選範圍內未找到可降低異常機率的單項調整，建議維持目前設定並依製程規範檢查。")
 
     col_sim_ctl, col_sim_view = st.columns([1, 2])
 
@@ -489,12 +591,6 @@ with tabs[3]:
         sim_pump = st.slider("注膠泵流量微調 (Pump Flow %)", -8.0, 8.0, 0.0, 0.2, help="修正 Mean Shift 整體偏移")
         sim_oven = st.slider("烘箱溫區熱平衡 (Dryer Balance °C)", -5.0, 5.0, 0.0, 0.5, help="修正溫度漂移")
         sim_clean = st.checkbox("執行模唇擦拭與過濾器排查 (消除 Local Spike)")
-
-        if st.button("✨ AI 智能自動推薦最佳調機參數", use_container_width=True):
-            # Auto-tuning heuristic
-            mean_delta = current_batch['Thickness_Mean_um'] - current_batch['Nominal_Thickness_um']
-            st.session_state['auto_pump'] = float(- (mean_delta / current_batch['Nominal_Thickness_um']) * 150)
-            st.success("已載入最佳調機補償設定！")
 
     with col_sim_view:
         # Calculate simulated points
@@ -522,9 +618,6 @@ with tabs[3]:
         sim_cpk = min((usl - sim_mean)/(3*sim_std), (sim_mean - lsl)/(3*sim_std))
 
         # Evaluate the same adjustment with the project's trained anomaly model.
-        model_bundle = load_anomaly_model()
-        model = model_bundle["model"]
-        feature_columns = model_bundle["feature_columns"]
         model_input = pd.DataFrame([{column: current_batch[column] for column in feature_columns}])
         for i, value in enumerate(sim_pts, start=1):
             model_input.loc[0, f"Point_{i}_um"] = value
