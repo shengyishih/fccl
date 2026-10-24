@@ -580,16 +580,46 @@ with tabs[3]:
     st.caption(f"目前產品型號：{current_batch['Product_Model']}｜批次：{batch_id}")
     st.caption("設備異常預測使用 equipment_anomaly_model.joblib；輸入值會轉換成設備參數偏差後送入模型。")
 
-    st.subheader("異常設備參數")
-    if recommendations.empty:
-        st.info("目前批次沒有設備參數偏差達 1% 的項目。")
-    else:
-        anomaly_view = recommendations[["設備參數", "設備目標值", "目前實際值", "偏差率（%）"]].copy()
-        anomaly_view[["設備目標值", "目前實際值"]] = anomaly_view[["設備目標值", "目前實際值"]].round(4)
-        anomaly_view["偏差率（%）"] = anomaly_view["偏差率（%）"].round(2)
-        st.dataframe(anomaly_view, hide_index=True, use_container_width=True)
+    baseline_input = build_equipment_model_input(current_batch, feature_columns)
+    class_ids = list(model.named_steps["classifier"].classes_)
+    anomaly_probability = float(model.predict_proba(baseline_input)[0][class_ids.index(1)])
+    equipment_prediction = int(model.predict(baseline_input)[0])
+    equipment_metric, probability_metric = st.columns(2)
+    equipment_metric.metric("目前設備模型判定", "異常" if equipment_prediction == 1 else "正常")
+    probability_metric.metric("設備異常機率", f"{anomaly_probability:.1%}")
+    if (current_batch["QC_Result"] == "NG") != (equipment_prediction == 1):
+        st.warning(
+            f"批次 QC 判定為 {current_batch['QC_Result']}，設備偏差模型判定為 "
+            f"{'異常' if equipment_prediction == 1 else '正常'}。此模型只使用設備參數偏差、產線與型號，"
+            "不使用厚度測點；兩種判定不一致時，請以 QC 檢測結果及工程確認為準。"
+        )
 
-        st.subheader("模型建議調整數據")
+    st.subheader("目前批次設備參數偏差")
+    parameter_status_rows = []
+    for parameter_key, label, unit in EQUIPMENT_PARAMETERS:
+        actual = pd.to_numeric(pd.Series([current_batch.get(f"{parameter_key}_actual")]), errors="coerce").iloc[0]
+        target = pd.to_numeric(pd.Series([current_batch.get(f"{parameter_key}_target")]), errors="coerce").iloc[0]
+        if pd.isna(actual) or pd.isna(target):
+            continue
+        deviation_pct = (float(actual) - float(target)) / float(target) * 100 if target else np.nan
+        parameter_status_rows.append({
+            "設備參數": label,
+            "Recipe Target": float(target),
+            "目前實際值": float(actual),
+            "偏差率（%）": deviation_pct,
+            "偏差狀態": "達 1% 門檻" if pd.notna(deviation_pct) and abs(deviation_pct) >= 1 else "未達 1% 門檻",
+            "單位": unit,
+        })
+    st.dataframe(
+        pd.DataFrame(parameter_status_rows).round(4),
+        hide_index=True,
+        width="stretch",
+    )
+
+    st.subheader("模型建議調整數據")
+    if recommendations.empty:
+        st.info("目前沒有單項設備偏差達 1%，因此不產生單項調機建議；這不代表批次 QC 判定合格。")
+    else:
         recommendation_view = recommendations[[
             "設備參數", "建議調整值", "單位", "建議方向", "目前異常機率（%）",
             "建議後異常機率（%）", "機率下降（百分點）"
