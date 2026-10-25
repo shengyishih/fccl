@@ -140,6 +140,12 @@ def load_data():
     if df[ws04_columns].isna().any().any():
         raise ValueError("WS-04 三個乾燥溫區的批次 Target／Actual 不可缺值。")
 
+    actual_columns = [column for column in df.columns if column.endswith("_actual")]
+    missing_actual_columns = [column for column in actual_columns if df[column].isna().any()]
+    if missing_actual_columns:
+        missing_counts = df[missing_actual_columns].isna().sum().to_dict()
+        raise ValueError(f"批次實測值欄位不可缺值：{missing_counts}")
+
     # Keep the product-specific WS-07 thickness-control bands aligned with the reference table.
     expected_specs = pd.DataFrame([
         {
@@ -215,7 +221,7 @@ EQUIPMENT_PARAMETERS = [
     ("dry_zone_1_2", "乾燥區 1-2 溫度", "°C"),
     ("dry_zone_3_4", "乾燥區 3-4 溫度", "°C"),
     ("dry_zone_5_6", "乾燥區 5-6 溫度", "°C"),
-    ("temp", "亞胺化溫度", "°C"),
+    ("temp", "WS-05 溫度設定", "°C"),
     ("pressure", "壓合線壓力", "N/mm"),
     ("cure", "熟化溫度", "°C"),
     ("rewind", "收捲張力", "N/m"),
@@ -663,7 +669,7 @@ with tabs[2]:
         "dry_zone_1_2": "初級揮發區溫度會影響溶劑揮發與表面成膜。",
         "dry_zone_3_4": "中級濃縮區溫度會影響乾燥速率與膜層均勻性。",
         "dry_zone_5_6": "預固化區溫度會影響後續固化與厚度穩定。",
-        "temp": "亞胺化溫度會影響固化與尺寸穩定。",
+        "temp": "WS-05 溫度依產品型號對應亞胺化核心或壓合鋼輥設定。",
         "pressure": "壓合線壓力會影響貼合與厚度分布。",
         "cure": "熟化溫度會影響黏著與殘餘應力。",
         "rewind": "收捲張力會影響捲芯壓痕與卷材平整度。",
@@ -861,7 +867,7 @@ with tabs[4]:
             ("dry_zone_1_2", "WS-04", "Zone 1-2 初級低溫揮發區", "乾燥區 1-2 溫度"),
             ("dry_zone_3_4", "WS-04", "Zone 3-4 中級濃縮區溫度", "乾燥區 3-4 溫度"),
             ("dry_zone_5_6", "WS-04", "Zone 5-6 預固化/凝膠區", "乾燥區 5-6 溫度"),
-            ("temp", "WS-05", "亞胺化核心峰值溫度", "亞胺化溫度"),
+            ("temp", "WS-05", ("亞胺化核心峰值溫度", "壓合鏡面鋼輥表面溫度"), "WS-05 溫度設定"),
             ("pressure", "WS-05", "壓合/拉伸線壓力", "壓合線壓力"),
             ("cure", "WS-06", "熟化恆溫保溫溫度", "熟化溫度"),
             ("rewind", "WS-08", "收捲張力起始基準值", "收捲張力"),
@@ -879,7 +885,9 @@ with tabs[4]:
                     target = pd.to_numeric(pd.Series([batch.get(f"{key}_target")]), errors="coerce").iloc[0]
                     parameter_spec = next((
                         item for item in station["parameters"]
-                        if parameter_keyword in item["name"]
+                        if any(keyword in item["name"] for keyword in (
+                            parameter_keyword if isinstance(parameter_keyword, tuple) else (parameter_keyword,)
+                        ))
                     ), None)
                     if pd.isna(actual) or pd.isna(target) or parameter_spec is None:
                         continue
