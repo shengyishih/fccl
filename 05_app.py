@@ -129,6 +129,26 @@ def load_data():
 
     df["Sample_Date"] = pd.to_datetime(df["Sample_Date"], errors="coerce")
 
+    # Keep the product-specific WS-07 thickness-control bands aligned with the reference table.
+    expected_specs = pd.DataFrame([
+        {
+            "Nominal_Thickness_um": FCCL_PRODUCT_SPECS.get(model, {}).get("nominal", np.nan),
+            "Tolerance_um": FCCL_PRODUCT_SPECS.get(model, {}).get("tol", np.nan),
+        }
+        for model in df["Product_Model"]
+    ], index=df.index)
+    expected_specs["LSL_um"] = expected_specs["Nominal_Thickness_um"] - expected_specs["Tolerance_um"]
+    expected_specs["USL_um"] = expected_specs["Nominal_Thickness_um"] + expected_specs["Tolerance_um"]
+    spec_columns = ["Nominal_Thickness_um", "Tolerance_um", "LSL_um", "USL_um"]
+    specs_match = np.isclose(
+        df[spec_columns].to_numpy(dtype=float),
+        expected_specs[spec_columns].to_numpy(dtype=float),
+        rtol=0,
+        atol=1e-9,
+    ).all(axis=1)
+    if not specs_match.all():
+        raise ValueError("批次資料的厚度規格與產品型號允差對照表不一致。")
+
     # Calculate Process Capability (Cp, Cpk, Ca)
     def calc_spc(row):
         pts = [row[f'Point_{i}_um'] for i in range(1, 11)]
@@ -450,12 +470,14 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📐 基材機械厚度跨幅 10 點剖面 (Cross-Web TD Profile)")
     st.caption(f"批號: {current_batch['Batch_ID']} · 型號: {current_batch['Product_Model']} · 取樣日期: {current_batch['Sample_Date']:%Y-%m-%d} · 檢測方法: IPC-TM-650 2.2.18")
+    st.caption("公差帶依 WS-07 在線測厚站的產品總厚度管制值繪製；此管制值不一定等同客戶最終驗收規格。設備可設定範圍 0.8～3 µm 不作為產品允差。")
 
     points = [current_batch[f'Point_{i}_um'] for i in range(1, 11)]
-    nominal = current_batch['Nominal_Thickness_um']
-    usl = current_batch['USL_um']
-    lsl = current_batch['LSL_um']
-    tol = current_batch['Tolerance_um']
+    product_spec = FCCL_PRODUCT_SPECS[current_batch['Product_Model']]
+    nominal = product_spec['nominal']
+    tol = product_spec['tol']
+    lsl = nominal - tol
+    usl = nominal + tol
 
     x_labels = [f"P{i}<br>(OS)" if i == 1 else (f"P{i}<br>(DS)" if i == 10 else f"P{i}") for i in range(1, 11)]
 
@@ -466,7 +488,7 @@ with tabs[1]:
         y0=lsl, y1=usl,
         fillcolor="rgba(16, 185, 129, 0.1)",
         line_width=0,
-        annotation_text="合格公差帶 (Spec Zone)",
+        annotation_text="WS-07總厚度管制帶 (QCP)",
         annotation_position="top left",
         annotation_font_color="#10b981"
     )
@@ -505,7 +527,7 @@ with tabs[1]:
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("平均厚度 (Mean X-bar)", f"{current_batch['Thickness_Mean_um']:.3f} µm", f"Δ {(current_batch['Thickness_Mean_um'] - nominal):+.3f} µm")
     c2.metric("厚度標準差 (Std.Dev σ)", f"{current_batch['Thickness_Std_um']:.3f} µm")
-    c3.metric("全幅極差 (Range R)", f"{current_batch['Thickness_Range_um']:.3f} µm", f"公差帶: {tol*2:.1f} µm")
+    c3.metric("全幅極差 (Range R)", f"{current_batch['Thickness_Range_um']:.3f} µm", f"管制帶全寬: {tol*2:.1f} µm")
     c4.metric("單批能力指數 (Cpk)", f"{current_batch['cpk']:.2f}", f"Cp {current_batch['cp']:.2f}")
 
 # ==========================================
