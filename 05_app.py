@@ -263,11 +263,15 @@ def load_equipment_anomaly_model():
 
 
 @st.cache_data
+def _parse_equipment_specs(spec_contents):
+    return json.loads(spec_contents)
+
+
 def load_equipment_specs():
     if not EQUIPMENT_SPECS_PATH.exists():
         raise FileNotFoundError(f"設備參數規格檔不存在：{EQUIPMENT_SPECS_PATH}")
     with EQUIPMENT_SPECS_PATH.open("r", encoding="utf-8") as stream:
-        return json.load(stream)
+        return _parse_equipment_specs(stream.read())
 
 
 EQUIPMENT_PARAMETERS = [
