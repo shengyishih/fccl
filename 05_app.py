@@ -913,7 +913,6 @@ with tabs[4]:
                     "QCP_Event": bool(qcp_event),
                     "QC_Result": batch["QC_Result"],
                     "Anomaly_Pattern": batch["Anomaly_Pattern"],
-                    "Potential_Root_Cause_Synthetic": batch["Potential_Root_Cause_Synthetic"],
                 })
 
         station_batches = pd.DataFrame(station_records)
@@ -939,10 +938,6 @@ with tabs[4]:
                 else:
                     anomaly_rows = deviation_rows
                 patterns = anomaly_rows.loc[~anomaly_rows["Anomaly_Pattern"].eq("Normal"), "Anomaly_Pattern"].value_counts()
-                causes = anomaly_rows.loc[
-                    ~anomaly_rows["Potential_Root_Cause_Synthetic"].eq("No_Injected_Anomaly"),
-                    "Potential_Root_Cause_Synthetic",
-                ].value_counts()
                 if not group["Has_Monitoring"].any():
                     judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
                 elif station_code == "WS-07":
@@ -964,7 +959,6 @@ with tabs[4]:
                     "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
                     "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
                     "常見異常型態": patterns.index[0] if len(patterns) else "—",
-                    "合成根因假設": causes.index[0] if len(causes) else "—",
                     "研判": judgment,
                 })
 
@@ -992,7 +986,7 @@ with tabs[4]:
                 detail_view = detail_rows[[
                     "Sample_Date", "Line", "Station_Code", "Station_Name", "Batch_ID",
                     "Product_Model", "Tracked_Parameters", "Signal_Details", "QC_Result",
-                    "Anomaly_Pattern", "Potential_Root_Cause_Synthetic",
+                    "Anomaly_Pattern",
                 ]].rename(columns={
                     "Sample_Date": "日期",
                     "Line": "產線",
@@ -1004,7 +998,6 @@ with tabs[4]:
                     "Signal_Details": "站內偏差明細",
                     "QC_Result": "同批厚度判定",
                     "Anomaly_Pattern": "厚度異常型態",
-                    "Potential_Root_Cause_Synthetic": "合成根因假設",
                 })
                 detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
                 st.dataframe(
