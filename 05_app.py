@@ -1092,16 +1092,12 @@ with tabs[4]:
                 same_batch_ng = with_values[with_values["QC_Result"].eq("NG")]
                 if station_code == "WS-07":
                     anomaly_rows = group[group["QC_Result"].eq("NG")]
-                else:
-                    anomaly_rows = deviation_rows
-                if station_code == "WS-07":
                     patterns = anomaly_rows.loc[
                         ~anomaly_rows["Cross_Section_Type"].eq("正常／近似平坦"), "Cross_Section_Type"
                     ].value_counts()
                 else:
-                    patterns = anomaly_rows.loc[
-                        ~anomaly_rows["Anomaly_Pattern"].eq("Normal"), "Anomaly_Pattern"
-                    ].value_counts()
+                    # Batch-level synthetic anomaly labels are not workstation defect types.
+                    patterns = pd.Series(dtype="int64")
                 if not group["Has_Monitoring"].any():
                     judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
                 elif station_code == "WS-07":
@@ -1123,9 +1119,8 @@ with tabs[4]:
                     "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
                     "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
                     "常見異常型態": (
-                        patterns.index[0] if station_code == "WS-07"
-                        else anomaly_display_names.get(patterns.index[0], patterns.index[0])
-                    ) if len(patterns) else "—",
+                        patterns.index[0] if len(patterns) else "—"
+                    ),
                     "研判": judgment,
                 })
 
