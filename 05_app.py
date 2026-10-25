@@ -431,7 +431,8 @@ tabs = st.tabs([
     "📐 10點跨幅剖面 (TD Profiler)",
     "⚙️ 機台參數偏差與根因 (Deviation)",
     "🛠️ 製程調機模擬器 (Simulator)",
-    "⚙️ 製程設備參數 (Equipment Settings)"
+    "⚙️ 製程設備參數 (Equipment Settings)",
+    "📊 產線工作站統計分析"
 ])
 
 # ==========================================
@@ -783,6 +784,287 @@ with tabs[4]:
                     hide_index=True,
                     width="stretch",
                     alt=f"{selected_model} {station['code']} 設備參數與管制範圍",
+                )
+
+# ==========================================
+# TAB 6: Production-line workstation analysis
+# ==========================================
+with tabs[5]:
+    st.markdown("### 📊 產線工作站統計分析")
+    st.caption(
+        "依批次日期、產線及工作站彙總參數偏差和厚度異常關聯。"
+        "異常根因為合成資料中的假設；WS-04、WS-09 等缺少站內實測欄位時不推定設備異常。"
+    )
+
+    equipment_specs = load_equipment_specs()
+    analysis_lines = sorted({spec["line"] for spec in equipment_specs.values()})
+    analysis_controls = st.columns([1, 2, 3])
+    selected_analysis_lines = analysis_controls[0].multiselect(
+        "產線",
+        analysis_lines,
+        default=analysis_lines,
+        key="station_analysis_lines",
+    )
+    available_analysis_models = sorted({
+        model for model, spec in equipment_specs.items()
+        if spec["line"] in selected_analysis_lines
+    })
+    selected_analysis_models = analysis_controls[1].multiselect(
+        "產品型號",
+        available_analysis_models,
+        default=available_analysis_models,
+        key="station_analysis_models",
+    )
+    min_sample_date = df_raw["Sample_Date"].min().date()
+    max_sample_date = df_raw["Sample_Date"].max().date()
+    selected_date_range = analysis_controls[2].date_input(
+        "統計日期區間",
+        value=(min_sample_date, max_sample_date),
+        min_value=min_sample_date,
+        max_value=max_sample_date,
+        key="station_analysis_dates",
+    )
+
+    if not selected_analysis_lines or not selected_analysis_models:
+        st.info("請至少選擇一條產線及一個產品型號。")
+    elif not isinstance(selected_date_range, (tuple, list)) or len(selected_date_range) != 2:
+        st.info("請選擇完整的起訖日期。")
+    else:
+        start_date, end_date = selected_date_range
+        analysis_batches = df_raw[
+            df_raw["Line"].astype(str).isin(selected_analysis_lines)
+            & df_raw["Product_Model"].astype(str).isin(selected_analysis_models)
+            & df_raw["Sample_Date"].dt.date.between(start_date, end_date)
+        ].copy()
+
+        station_parameter_map = [
+            ("speed", "WS-01", "工作線速度", "產線速度"),
+            ("unwind", "WS-01", "放捲張力設定", "放捲張力"),
+            ("viscosity", "WS-02", "膠液目標黏度", "膠液黏度"),
+            ("gap", "WS-03", "模頭唇口開縫間距", "模頭開縫"),
+            ("pump", "WS-03", "高精度計量泵流量", "計量泵流量"),
+            ("wet", "WS-03", "塗布濕膜厚度目標", "塗布濕膜厚度"),
+            ("temp", "WS-05", "亞胺化核心峰值溫度", "亞胺化溫度"),
+            ("pressure", "WS-05", "壓合/拉伸線壓力", "壓合線壓力"),
+            ("cure", "WS-06", "熟化恆溫保溫溫度", "熟化溫度"),
+            ("rewind", "WS-08", "收捲張力起始基準值", "收捲張力"),
+        ]
+
+        station_records = []
+        for _, batch in analysis_batches.iterrows():
+            product_spec = equipment_specs[batch["Product_Model"]]
+            for station in product_spec["stations"]:
+                signals = []
+                for key, station_code, parameter_keyword, display_name in station_parameter_map:
+                    if station["code"] != station_code:
+                        continue
+                    actual = pd.to_numeric(pd.Series([batch.get(f"{key}_actual")]), errors="coerce").iloc[0]
+                    target = pd.to_numeric(pd.Series([batch.get(f"{key}_target")]), errors="coerce").iloc[0]
+                    parameter_spec = next((
+                        item for item in station["parameters"]
+                        if parameter_keyword in item["name"]
+                    ), None)
+                    if pd.isna(actual) or pd.isna(target) or parameter_spec is None:
+                        continue
+                    deviation_pct = (float(actual) - float(target)) / abs(float(target)) * 100 if target else np.nan
+                    outside_qcp = bool(parameter_spec.get("qcp", False)) and (
+                        float(actual) < float(parameter_spec["lower"])
+                        or float(actual) > float(parameter_spec["upper"])
+                    )
+                    signals.append({
+                        "key": key,
+                        "name": display_name,
+                        "actual": float(actual),
+                        "target": float(target),
+                        "deviation_pct": deviation_pct,
+                        "outside_qcp": outside_qcp,
+                    })
+
+                if station["code"] == "WS-07":
+                    available_signal = True
+                    tracked_parameters = "10點在線厚度量測"
+                    deviation_event = False
+                    qcp_event = batch["QC_Result"] == "NG"
+                    out_of_band_points = [
+                        f"P{point}={float(batch[f'Point_{point}_um']):.2f}"
+                        for point in range(1, 11)
+                        if float(batch[f'Point_{point}_um']) < float(batch["LSL_um"])
+                        or float(batch[f'Point_{point}_um']) > float(batch["USL_um"])
+                    ]
+                    signal_details = (
+                        f"超界點：{'、'.join(out_of_band_points)}"
+                        if out_of_band_points else "10 點量測皆在 WS-07 管制帶內"
+                    )
+                else:
+                    available_signal = bool(signals)
+                    tracked_parameters = "、".join(signal["name"] for signal in signals) or "無站內實測欄位"
+                    deviation_event = any(
+                        pd.notna(signal["deviation_pct"]) and abs(signal["deviation_pct"]) >= 1.0
+                        for signal in signals
+                    )
+                    qcp_event = any(signal["outside_qcp"] for signal in signals)
+                    signal_details = "；".join(
+                        f"{signal['name']} {signal['actual']:g}（Target {signal['target']:g}，"
+                        f"偏差 {signal['deviation_pct']:+.2f}%"
+                        f"{'，超出QCP' if signal['outside_qcp'] else ''}）"
+                        for signal in signals
+                    ) or "無本站實測值"
+
+                station_records.append({
+                    "Batch_ID": batch["Batch_ID"],
+                    "Sample_Date": batch["Sample_Date"],
+                    "Line": batch["Line"],
+                    "Product_Model": batch["Product_Model"],
+                    "Station_Code": station["code"],
+                    "Station_Name": station["name"],
+                    "Tracked_Parameters": tracked_parameters,
+                    "Signal_Details": signal_details,
+                    "Has_Monitoring": available_signal,
+                    "Deviation_Event": bool(deviation_event),
+                    "QCP_Event": bool(qcp_event),
+                    "QC_Result": batch["QC_Result"],
+                    "Anomaly_Pattern": batch["Anomaly_Pattern"],
+                    "Potential_Root_Cause_Synthetic": batch["Potential_Root_Cause_Synthetic"],
+                })
+
+        station_batches = pd.DataFrame(station_records)
+        if station_batches.empty:
+            st.info("此日期區間沒有符合條件的批次資料。")
+        else:
+            monitored_batches = station_batches[station_batches["Has_Monitoring"]]
+            station_deviation_count = int(monitored_batches["Deviation_Event"].sum())
+            qc_ng_batches = int(analysis_batches["QC_Result"].eq("NG").sum())
+            kpi_columns = st.columns(3)
+            kpi_columns[0].metric("符合條件批次", f"{analysis_batches['Batch_ID'].nunique():,}")
+            kpi_columns[1].metric("10點厚度 NG 批次", f"{qc_ng_batches:,}")
+            kpi_columns[2].metric("工作站偏差 ≥1% 批次站次", f"{station_deviation_count:,}")
+
+            summary_rows = []
+            for (line, station_code), group in station_batches.groupby(["Line", "Station_Code"], sort=True):
+                with_values = group[group["Has_Monitoring"]]
+                deviation_rows = with_values[with_values["Deviation_Event"]]
+                qcp_rows = with_values[with_values["QCP_Event"]]
+                same_batch_ng = with_values[with_values["QC_Result"].eq("NG")]
+                if station_code == "WS-07":
+                    anomaly_rows = group[group["QC_Result"].eq("NG")]
+                else:
+                    anomaly_rows = deviation_rows
+                patterns = anomaly_rows.loc[~anomaly_rows["Anomaly_Pattern"].eq("Normal"), "Anomaly_Pattern"].value_counts()
+                causes = anomaly_rows.loc[
+                    ~anomaly_rows["Potential_Root_Cause_Synthetic"].eq("No_Injected_Anomaly"),
+                    "Potential_Root_Cause_Synthetic",
+                ].value_counts()
+                if not group["Has_Monitoring"].any():
+                    judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
+                elif station_code == "WS-07":
+                    judgment = f"在線厚度管制帶超界 {len(anomaly_rows)} 批；確認測厚校正、跨幅均勻性及批次追溯。" if len(anomaly_rows) else "目前區間未見厚度管制帶超界。"
+                elif len(qcp_rows):
+                    judgment = f"有 {len(qcp_rows)} 批站內參數超出 QCP 上下限；優先查核站內設備與 Recipe。"
+                elif len(deviation_rows):
+                    judgment = f"有 {len(deviation_rows)} 批站內參數偏離 Target 達 1%；比對同批厚度結果與趨勢。"
+                else:
+                    judgment = "目前未見 ≥1% Target 偏差或 QCP 超界。"
+                summary_rows.append({
+                    "產線": line,
+                    "工作站": station_code,
+                    "工作站名稱": "／".join(sorted(group["Station_Name"].dropna().unique())),
+                    "監測參數": "；".join(sorted(with_values["Tracked_Parameters"].unique())) or "無站內實測欄位",
+                    "批次數": int(group["Batch_ID"].nunique()),
+                    "有實測值批次": int(with_values["Batch_ID"].nunique()),
+                    "偏離 Target ≥1% 批次": int(deviation_rows["Batch_ID"].nunique()),
+                    "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
+                    "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
+                    "常見異常型態": patterns.index[0] if len(patterns) else "—",
+                    "合成根因假設": causes.index[0] if len(causes) else "—",
+                    "研判": judgment,
+                })
+
+            st.subheader("各產線工作站異常摘要")
+            st.dataframe(
+                pd.DataFrame(summary_rows),
+                hide_index=True,
+                width="stretch",
+                alt="依產線及工作站彙總參數偏差、QCP 超界及同批厚度異常關聯",
+            )
+
+            trend_lines = sorted(station_batches["Line"].unique())
+            trend_controls = st.columns(2)
+            trend_line = trend_controls[0].selectbox("趨勢產線", trend_lines, key="station_trend_line")
+            trend_station_options = sorted(
+                station_batches.loc[station_batches["Line"].eq(trend_line), "Station_Code"].unique()
+            )
+            trend_station = trend_controls[1].selectbox(
+                "趨勢工作站", trend_station_options, key="station_trend_station"
+            )
+            trend_data = station_batches[
+                station_batches["Line"].eq(trend_line)
+                & station_batches["Station_Code"].eq(trend_station)
+            ].copy()
+            trend_data["Station_Anomaly_Batch"] = (
+                trend_data["QC_Result"].eq("NG") if trend_station == "WS-07"
+                else trend_data["Has_Monitoring"] & (trend_data["Deviation_Event"] | trend_data["QCP_Event"])
+            )
+            daily_trend = trend_data.groupby(trend_data["Sample_Date"].dt.date).agg(
+                工作站異常批次=("Station_Anomaly_Batch", "sum"),
+                同批厚度NG=("QC_Result", lambda values: values.eq("NG").sum()),
+            ).reset_index(names="日期")
+            if trend_data["Has_Monitoring"].any():
+                trend_figure = go.Figure()
+                trend_figure.add_trace(go.Bar(
+                    x=daily_trend["日期"], y=daily_trend["工作站異常批次"],
+                    name="工作站異常批次", marker_color="#ef4444",
+                ))
+                trend_figure.add_trace(go.Scatter(
+                    x=daily_trend["日期"], y=daily_trend["同批厚度NG"],
+                    name="同批厚度 NG", mode="lines+markers", yaxis="y2", line=dict(color="#2563eb"),
+                ))
+                trend_figure.update_layout(
+                    template="plotly_white",
+                    height=360,
+                    xaxis_title="取樣日期",
+                    yaxis=dict(title="批次數", rangemode="tozero"),
+                    yaxis2=dict(title="同批厚度 NG 批次", overlaying="y", side="right", rangemode="tozero"),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    margin=dict(l=40, r=50, t=40, b=30),
+                )
+                st.plotly_chart(
+                    trend_figure,
+                    width="stretch",
+                    alt=f"{trend_line} {trend_station} 工作站異常與同批厚度 NG 日期趨勢",
+                )
+            else:
+                st.info(f"{trend_line} {trend_station} 在目前資料中沒有可分析的站內實測欄位。")
+
+            if trend_station == "WS-07":
+                detail_rows = trend_data[trend_data["QC_Result"].eq("NG")]
+            else:
+                detail_rows = trend_data[
+                    trend_data["Has_Monitoring"]
+                    & (trend_data["Deviation_Event"] | trend_data["QCP_Event"])
+                ]
+            st.subheader("工作站異常批次明細")
+            if detail_rows.empty:
+                st.info("目前篩選條件下沒有工作站異常批次。")
+            else:
+                detail_view = detail_rows[[
+                    "Sample_Date", "Batch_ID", "Product_Model", "Tracked_Parameters",
+                    "Signal_Details", "QC_Result", "Anomaly_Pattern", "Potential_Root_Cause_Synthetic",
+                ]].rename(columns={
+                    "Sample_Date": "日期",
+                    "Batch_ID": "批號",
+                    "Product_Model": "產品型號",
+                    "Tracked_Parameters": "本站監測項目",
+                    "Signal_Details": "站內偏差明細",
+                    "QC_Result": "同批厚度判定",
+                    "Anomaly_Pattern": "厚度異常型態",
+                    "Potential_Root_Cause_Synthetic": "合成根因假設",
+                })
+                detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
+                st.dataframe(
+                    detail_view,
+                    hide_index=True,
+                    width="stretch",
+                    alt=f"{trend_line} {trend_station} 工作站異常批次及關聯資訊",
                 )
 
 # ==========================================
