@@ -600,7 +600,7 @@ else:
 def build_database_view(dataframe):
     database_view = dataframe[[
         "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "Quality_Judgment",
-        "Cross_Section_Type", "Anomaly_Pattern",
+        "Cross_Section_Type",
     ]].copy()
     database_view["Line"] = database_view["Line"].map(
         {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
@@ -616,7 +616,6 @@ def build_database_view(dataframe):
         "cpk": "Cpk",
         "Quality_Judgment": "品質判定",
         "Cross_Section_Type": "TD截面型態",
-        "Anomaly_Pattern": "合成異常情境",
     })
 
 
