@@ -237,6 +237,22 @@ EQUIPMENT_PARAMETERS = [
     ("rewind", "收捲張力", "N/m"),
 ]
 
+EQUIPMENT_PARAMETER_SPEC_MATCHERS = {
+    "speed": ("WS-01", ("工作線速度",)),
+    "unwind": ("WS-01", ("放捲張力設定",)),
+    "viscosity": ("WS-02", ("膠液目標黏度",)),
+    "gap": ("WS-03", ("模頭唇口開縫間距",)),
+    "pump": ("WS-03", ("高精度計量泵流量",)),
+    "wet": ("WS-03", ("塗布濕膜厚度目標",)),
+    "dry_zone_1_2": ("WS-04", ("Zone 1-2 初級低溫揮發區",)),
+    "dry_zone_3_4": ("WS-04", ("Zone 3-4 中級濃縮區溫度",)),
+    "dry_zone_5_6": ("WS-04", ("Zone 5-6 預固化/凝膠區",)),
+    "temp": ("WS-05", ("亞胺化核心峰值溫度", "壓合鏡面鋼輥表面溫度")),
+    "pressure": ("WS-05", ("壓合/拉伸線壓力",)),
+    "cure": ("WS-06", ("熟化恆溫保溫溫度",)),
+    "rewind": ("WS-08", ("收捲張力起始基準值",)),
+}
+
 
 @st.dialog("製程設備參數設定要求", width="large", position="right", icon=":material/settings:")
 def show_equipment_settings_dialog():
@@ -299,66 +315,91 @@ def show_equipment_settings_dialog():
             )
 
 
-def recommend_equipment_adjustments(row, history, model, feature_columns):
-    """Use the equipment model to score parameter candidates for rows deviating by 1% or more."""
+def recommend_equipment_adjustments(row, model, feature_columns, equipment_specs):
+    """Score individual candidates inside the selected product's documented parameter limits."""
     baseline = build_equipment_model_input(row, feature_columns)
     classes = list(model.named_steps["classifier"].classes_)
     anomaly_index = classes.index(1)
     baseline_probability = float(model.predict_proba(baseline)[0][anomaly_index])
-
-    line_product = history[
-        history["Line"].astype(str).eq(str(row["Line"]))
-        & history["Product_Model"].astype(str).eq(str(row["Product_Model"]))
-    ]
-    product_history = history[history["Product_Model"].astype(str).eq(str(row["Product_Model"]))]
-    reference = line_product if len(line_product) >= 5 else product_history
-    if len(reference) < 5:
-        reference = history
+    product_spec = equipment_specs.get(str(row["Product_Model"]), {})
 
     recommendations = []
-    for key, label, _unit in EQUIPMENT_PARAMETERS:
+    for key, label, unit in EQUIPMENT_PARAMETERS:
         actual_col, target_col = f"{key}_actual", f"{key}_target"
         if f"{key}_deviation" not in feature_columns or target_col not in row.index:
             continue
+
+        matcher = EQUIPMENT_PARAMETER_SPEC_MATCHERS.get(key)
+        if matcher is None:
+            continue
+        station_code, parameter_names = matcher
+        station = next((item for item in product_spec.get("stations", []) if item["code"] == station_code), None)
+        parameter_spec = next((
+            item for item in station["parameters"]
+            if any(name in item["name"] for name in parameter_names)
+        ), None) if station else None
+        if parameter_spec is None:
+            continue
+
         actual = pd.to_numeric(pd.Series([row.get(actual_col)]), errors="coerce").iloc[0]
         target = pd.to_numeric(pd.Series([row.get(target_col)]), errors="coerce").iloc[0]
         if pd.isna(actual) or pd.isna(target):
             continue
+
+        lower, upper = float(parameter_spec["lower"]), float(parameter_spec["upper"])
         deviation_pct = ((actual - target) / target * 100) if target else 0.0
-        if abs(float(deviation_pct)) < 1.0:
+        outside_spec = actual < lower or actual > upper
+        if abs(float(deviation_pct)) < 1.0 and not outside_spec:
             continue
 
-        observed = pd.to_numeric(reference[actual_col], errors="coerce").dropna()
-        if observed.empty:
-            continue
-        lower, upper = observed.quantile(0.05), observed.quantile(0.95)
-        candidates = set(np.linspace(lower, upper, 21).tolist())
-        candidates.update((float(actual), float(target)))
+        # Search a fixed, reproducible grid. Keep in-spec current readings as candidates;
+        # when current is outside the spec, prefer the recipe target on tied model scores.
+        candidates = set(np.linspace(lower, upper, 41).tolist())
+        candidates.add(float(np.clip(target, lower, upper)))
+        if not outside_spec:
+            candidates.add(float(actual))
 
-        best_value, best_probability = float(actual), baseline_probability
-        for candidate_value in candidates:
-            trial = build_equipment_model_input(
+        candidate_values = sorted(candidates)
+        trial_inputs = pd.concat([
+            build_equipment_model_input(
                 row,
                 feature_columns,
                 actual_overrides={actual_col: float(candidate_value)},
             )
-            probability = float(model.predict_proba(trial)[0][anomaly_index])
-            if probability < best_probability:
-                best_value, best_probability = float(candidate_value), probability
+            for candidate_value in candidate_values
+        ], ignore_index=True)
+        candidate_probabilities = model.predict_proba(trial_inputs)[:, anomaly_index]
+        scored_candidates = list(zip(candidate_values, candidate_probabilities.astype(float)))
+
+        lowest_probability = min(probability for _, probability in scored_candidates)
+        tied_candidates = [
+            item for item in scored_candidates
+            if np.isclose(item[1], lowest_probability, atol=1e-12)
+        ]
+        preferred_value = float(actual) if not outside_spec else float(np.clip(target, lower, upper))
+        best_value, best_probability = min(
+            tied_candidates,
+            key=lambda item: (abs(item[0] - preferred_value), abs(item[0] - target)),
+        )
 
         recommendations.append({
             "設備參數": label,
-            "單位": _unit,
+            "單位": unit,
+            "Recipe Target": float(target),
             "目前實際值": float(actual),
-            "設備目標值": float(target),
             "偏差率（%）": float(deviation_pct),
+            "規格下限": lower,
+            "規格上限": upper,
             "建議調整值": best_value,
             "建議方向": "維持現值" if np.isclose(best_value, actual) else ("降低" if best_value < actual else "提高"),
             "目前異常機率（%）": baseline_probability * 100,
             "建議後異常機率（%）": best_probability * 100,
             "機率下降（百分點）": (baseline_probability - best_probability) * 100,
+            "建議值符合規格": lower <= best_value <= upper,
         })
-    return pd.DataFrame(recommendations).sort_values("偏差率（%）", key=lambda values: values.abs(), ascending=False) if recommendations else pd.DataFrame()
+    return pd.DataFrame(recommendations).sort_values(
+        "偏差率（%）", key=lambda values: values.abs(), ascending=False
+    ) if recommendations else pd.DataFrame()
 
 
 def build_equipment_model_input(row, feature_columns, actual_overrides=None):
@@ -740,7 +781,9 @@ with tabs[3]:
     model_bundle = load_equipment_anomaly_model()
     model = model_bundle["model"]
     feature_columns = model_bundle["feature_columns"]
-    recommendations = recommend_equipment_adjustments(current_batch, df_raw, model, feature_columns)
+    recommendations = recommend_equipment_adjustments(
+        current_batch, model, feature_columns, load_equipment_specs()
+    )
     batch_id = str(current_batch["Batch_ID"])
 
     st.subheader("目前批次設備參數偏差")
@@ -766,19 +809,31 @@ with tabs[3]:
     )
 
     st.subheader("模型建議調整數據")
+    if model_bundle.get("data_is_synthetic"):
+        st.caption("模型以合成資料中的注入異常標籤訓練；以下為符合本產品型號參數規格的單項情境模擬，不代表真實設備故障診斷或製程因果結論。")
     if recommendations.empty:
         st.info("目前沒有單項設備偏差達 1%，因此不產生單項調機建議；這不代表批次 QC 判定合格。")
     else:
         recommendation_view = recommendations[[
-            "設備參數", "建議調整值", "單位", "建議方向", "目前異常機率（%）",
-            "建議後異常機率（%）", "機率下降（百分點）"
+            "設備參數", "Recipe Target", "目前實際值", "偏差率（%）",
+            "規格下限", "規格上限", "建議調整值", "單位", "建議方向",
+            "建議值符合規格", "目前異常機率（%）", "建議後異常機率（%）",
+            "機率下降（百分點）"
         ]].copy()
-        recommendation_view["建議調整值"] = recommendation_view["建議調整值"].round(4)
+        for column in ["Recipe Target", "目前實際值", "偏差率（%）", "規格下限", "規格上限", "建議調整值"]:
+            recommendation_view[column] = recommendation_view[column].round(4)
         for column in ["目前異常機率（%）", "建議後異常機率（%）", "機率下降（百分點）"]:
             recommendation_view[column] = recommendation_view[column].round(2)
-        st.dataframe(recommendation_view, hide_index=True, use_container_width=True)
+        st.dataframe(recommendation_view, hide_index=True, width="stretch", alt="模型建議值、產品規格上下限與模擬分數比較")
         if recommendations["機率下降（百分點）"].max() <= 0:
-            st.info("模型在候選範圍內未找到可降低異常機率的單項調整，建議維持目前設定並依製程規範檢查。")
+            current_outside_spec = (
+                (recommendations["目前實際值"] < recommendations["規格下限"])
+                | (recommendations["目前實際值"] > recommendations["規格上限"])
+            ).any()
+            if current_outside_spec:
+                st.info("模型分數未因候選調整下降；目前有參數超出產品規格，請依規格及 Recipe Target 處理，勿以模型分數作為維持超規值的依據。")
+            else:
+                st.info("模型在規格範圍內未找到可降低異常機率的單項調整；建議維持目前值並依製程規範檢查。")
 
         recommendation_labels = recommendations["設備參數"].tolist()
         selected_recommendation = st.selectbox("選擇要帶入的模型建議", recommendation_labels, key=f"recommendation_{batch_id}")
