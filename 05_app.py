@@ -798,18 +798,8 @@ with tabs[3]:
 # ==========================================
 with tabs[4]:
     st.markdown("### 📊 產線工作站統計分析")
-    st.caption(
-        "依批次日期、產線及工作站彙總參數偏差和厚度異常關聯。"
-        "異常根因為合成資料中的假設；WS-04、WS-09 等缺少站內實測欄位時不推定設備異常。"
-    )
 
     equipment_specs = load_equipment_specs()
-    analysis_line_label = "全部產線" if line_key is None else str(line_key)
-    analysis_date_label = date_mode if date_selection is None else f"{date_mode}：{date_selection}"
-    st.caption(
-        f"目前採用左側篩選｜生產線別：{analysis_line_label}｜產品型號：{model_filter}｜"
-        f"日期：{analysis_date_label}｜QC：{qc_filter}｜截面異常：{anomaly_filter}"
-    )
     analysis_batches = df_filtered.copy()
 
     if analysis_batches.empty:
