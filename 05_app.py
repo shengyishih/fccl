@@ -955,70 +955,28 @@ with tabs[4]:
                 alt="依產線及工作站彙總參數偏差、QCP 超界及同批厚度異常關聯",
             )
 
-            trend_lines = sorted(station_batches["Line"].unique())
-            trend_controls = st.columns(2)
-            trend_line = trend_controls[0].selectbox("趨勢產線", trend_lines, key="station_trend_line")
-            trend_station_options = sorted(
-                station_batches.loc[station_batches["Line"].eq(trend_line), "Station_Code"].unique()
+            ws07_events = station_batches["Station_Code"].eq("WS-07") & station_batches["QC_Result"].eq("NG")
+            parameter_events = (
+                station_batches["Station_Code"].ne("WS-07")
+                & station_batches["Has_Monitoring"]
+                & (station_batches["Deviation_Event"] | station_batches["QCP_Event"])
             )
-            trend_station = trend_controls[1].selectbox(
-                "趨勢工作站", trend_station_options, key="station_trend_station"
+            detail_rows = station_batches[ws07_events | parameter_events].sort_values(
+                ["Sample_Date", "Line", "Station_Code", "Batch_ID"]
             )
-            trend_data = station_batches[
-                station_batches["Line"].eq(trend_line)
-                & station_batches["Station_Code"].eq(trend_station)
-            ].copy()
-            trend_data["Station_Anomaly_Batch"] = (
-                trend_data["QC_Result"].eq("NG") if trend_station == "WS-07"
-                else trend_data["Has_Monitoring"] & (trend_data["Deviation_Event"] | trend_data["QCP_Event"])
-            )
-            daily_trend = trend_data.groupby(trend_data["Sample_Date"].dt.date).agg(
-                工作站異常批次=("Station_Anomaly_Batch", "sum"),
-                同批厚度NG=("QC_Result", lambda values: values.eq("NG").sum()),
-            ).reset_index(names="日期")
-            if trend_data["Has_Monitoring"].any():
-                trend_figure = go.Figure()
-                trend_figure.add_trace(go.Bar(
-                    x=daily_trend["日期"], y=daily_trend["工作站異常批次"],
-                    name="工作站異常批次", marker_color="#ef4444",
-                ))
-                trend_figure.add_trace(go.Scatter(
-                    x=daily_trend["日期"], y=daily_trend["同批厚度NG"],
-                    name="同批厚度 NG", mode="lines+markers", yaxis="y2", line=dict(color="#2563eb"),
-                ))
-                trend_figure.update_layout(
-                    template="plotly_white",
-                    height=360,
-                    xaxis_title="取樣日期",
-                    yaxis=dict(title="批次數", rangemode="tozero"),
-                    yaxis2=dict(title="同批厚度 NG 批次", overlaying="y", side="right", rangemode="tozero"),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                    margin=dict(l=40, r=50, t=40, b=30),
-                )
-                st.plotly_chart(
-                    trend_figure,
-                    width="stretch",
-                    alt=f"{trend_line} {trend_station} 工作站異常與同批厚度 NG 日期趨勢",
-                )
-            else:
-                st.info(f"{trend_line} {trend_station} 在目前資料中沒有可分析的站內實測欄位。")
-
-            if trend_station == "WS-07":
-                detail_rows = trend_data[trend_data["QC_Result"].eq("NG")]
-            else:
-                detail_rows = trend_data[
-                    trend_data["Has_Monitoring"]
-                    & (trend_data["Deviation_Event"] | trend_data["QCP_Event"])
-                ]
             st.subheader("工作站異常批次明細")
             if detail_rows.empty:
                 st.info("目前篩選條件下沒有工作站異常批次。")
             else:
                 detail_view = detail_rows[[
-                    "Sample_Date", "Batch_ID", "Product_Model", "Tracked_Parameters",
-                    "Signal_Details", "QC_Result", "Anomaly_Pattern", "Potential_Root_Cause_Synthetic",
+                    "Sample_Date", "Line", "Station_Code", "Station_Name", "Batch_ID",
+                    "Product_Model", "Tracked_Parameters", "Signal_Details", "QC_Result",
+                    "Anomaly_Pattern", "Potential_Root_Cause_Synthetic",
                 ]].rename(columns={
                     "Sample_Date": "日期",
+                    "Line": "產線",
+                    "Station_Code": "工作站",
+                    "Station_Name": "工作站名稱",
                     "Batch_ID": "批號",
                     "Product_Model": "產品型號",
                     "Tracked_Parameters": "本站監測項目",
@@ -1032,7 +990,7 @@ with tabs[4]:
                     detail_view,
                     hide_index=True,
                     width="stretch",
-                    alt=f"{trend_line} {trend_station} 工作站異常批次及關聯資訊",
+                    alt="依左側篩選條件列出各產線工作站異常批次及關聯資訊",
                 )
 
 # ==========================================
