@@ -200,6 +200,67 @@ EQUIPMENT_PARAMETERS = [
 ]
 
 
+@st.dialog("製程設備參數設定要求", width="large", position="right", icon=":material/settings:")
+def show_equipment_settings_dialog():
+    equipment_specs = load_equipment_specs()
+    available_lines = sorted({spec["line"] for spec in equipment_specs.values()})
+    default_line = str(line_key) if line_key is not None else str(current_batch["Line"])
+    if line_key is None:
+        active_line = st.selectbox(
+            "產線",
+            available_lines,
+            index=available_lines.index(default_line) if default_line in available_lines else 0,
+            key="equipment_dialog_line",
+        )
+    else:
+        active_line = str(line_key)
+        st.caption(f"產線：{active_line}（依左側產線篩選同步）")
+
+    line_models = sorted(
+        model for model, spec in equipment_specs.items()
+        if spec["line"] == active_line
+    )
+    if not line_models:
+        st.warning(f"規格表中沒有 {active_line} 產線的設備參數。")
+        return
+
+    preferred_model = model_filter if model_filter in line_models else str(current_batch["Product_Model"])
+    selected_model = st.selectbox(
+        "產品型號",
+        line_models,
+        index=line_models.index(preferred_model) if preferred_model in line_models else 0,
+        key=f"equipment_dialog_model_{active_line}",
+    )
+    product_spec = equipment_specs[selected_model]
+
+    st.markdown(f"**目前產線：{active_line}｜產品型號：{selected_model}**")
+    summary_columns = st.columns(3)
+    summary_columns[0].metric("產品層數", product_spec["layers"])
+    summary_columns[1].metric("產品總厚度", f"{product_spec['total_thickness_um']:g} µm")
+    summary_columns[2].metric("目標良率", f"≥ {product_spec['yield_target_pct']:g}%")
+
+    for station in product_spec["stations"]:
+        station_title = f"{station['code']}｜{station['name']}"
+        with st.expander(station_title, expanded=station["code"] == "WS-01"):
+            station_rows = [
+                {
+                    "設備技術參數": parameter["name"].replace(" (*QCP)", ""),
+                    "Recipe Target": parameter["target"],
+                    "管制下限": parameter["lower"],
+                    "管制上限": parameter["upper"],
+                    "單位": parameter["unit"],
+                    "管制項目": "QCP" if parameter["qcp"] else "一般設定",
+                }
+                for parameter in station["parameters"]
+            ]
+            st.dataframe(
+                pd.DataFrame(station_rows),
+                hide_index=True,
+                width="stretch",
+                alt=f"{selected_model} {station['code']} 設備參數與管制範圍",
+            )
+
+
 def recommend_equipment_adjustments(row, history, model, feature_columns):
     """Use the equipment model to score parameter candidates for rows deviating by 1% or more."""
     baseline = build_equipment_model_input(row, feature_columns)
@@ -388,7 +449,12 @@ else:
     current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
 
 # 5. Current batch summary cards
-st.markdown("## 📐 FCCL 製程優化與基材厚度分析儀表板")
+title_column, settings_column = st.columns([20, 1], vertical_alignment="center")
+with title_column:
+    st.markdown("## 📐 FCCL 製程優化與基材厚度分析儀表板")
+with settings_column:
+    if st.button("⚙️", help="開啟製程設備參數", key="open_equipment_settings_dialog"):
+        show_equipment_settings_dialog()
 st.markdown("*QC/QA 機械厚度檢測法 (IPC-TM-650 2.2.18) · 跨幅 10 點連續剖面與機台製程參數優化*")
 
 col4, col5, col6 = st.columns(3)
@@ -431,7 +497,6 @@ tabs = st.tabs([
     "📐 10點跨幅剖面 (TD Profiler)",
     "⚙️ 機台參數偏差與根因 (Deviation)",
     "🛠️ 製程調機模擬器 (Simulator)",
-    "⚙️ 製程設備參數 (Equipment Settings)",
     "📊 產線工作站統計分析"
 ])
 
@@ -724,72 +789,9 @@ with tabs[3]:
             st.info("輸入本產品型號適用的模擬參數後，按「以設備參數執行模型預測」查看結果。")
 
 # ==========================================
-# TAB 5: Product-specific equipment settings
+# TAB 5: Production-line workstation analysis
 # ==========================================
 with tabs[4]:
-    st.markdown("### 製程設備參數設定要求")
-    st.caption("依設備技術參數規格表，按目前產線與產品型號列出 WS-01 至 WS-09 的 Recipe Target、公差範圍及 QCP 管制項目。")
-
-    equipment_specs = load_equipment_specs()
-    available_lines = sorted({spec["line"] for spec in equipment_specs.values()})
-    default_line = str(line_key) if line_key is not None else str(current_batch["Line"])
-    if line_key is None:
-        active_line = st.selectbox(
-            "產線",
-            available_lines,
-            index=available_lines.index(default_line) if default_line in available_lines else 0,
-            key="equipment_spec_line_all",
-        )
-    else:
-        active_line = str(line_key)
-        st.caption(f"產線：{active_line}（依左側產線篩選同步）")
-    line_models = sorted(
-        model for model, spec in equipment_specs.items()
-        if spec["line"] == active_line
-    )
-    if not line_models:
-        st.warning(f"規格表中沒有 {active_line} 產線的設備參數。")
-    else:
-        preferred_model = model_filter if model_filter in line_models else str(current_batch["Product_Model"])
-        selected_model = st.selectbox(
-            "產品型號",
-            line_models,
-            index=line_models.index(preferred_model) if preferred_model in line_models else 0,
-            key=f"equipment_spec_model_{active_line}",
-        )
-        product_spec = equipment_specs[selected_model]
-
-        st.markdown(f"**目前產線：{active_line}｜產品型號：{selected_model}**")
-        summary_columns = st.columns(3)
-        summary_columns[0].metric("產品層數", product_spec["layers"])
-        summary_columns[1].metric("產品總厚度", f"{product_spec['total_thickness_um']:g} µm")
-        summary_columns[2].metric("目標良率", f"≥ {product_spec['yield_target_pct']:g}%")
-
-        for station in product_spec["stations"]:
-            station_title = f"{station['code']}｜{station['name']}"
-            with st.expander(station_title, expanded=station["code"] == "WS-01"):
-                station_rows = [
-                    {
-                        "設備技術參數": parameter["name"].replace(" (*QCP)", ""),
-                        "Recipe Target": parameter["target"],
-                        "管制下限": parameter["lower"],
-                        "管制上限": parameter["upper"],
-                        "單位": parameter["unit"],
-                        "管制項目": "QCP" if parameter["qcp"] else "一般設定",
-                    }
-                    for parameter in station["parameters"]
-                ]
-                st.dataframe(
-                    pd.DataFrame(station_rows),
-                    hide_index=True,
-                    width="stretch",
-                    alt=f"{selected_model} {station['code']} 設備參數與管制範圍",
-                )
-
-# ==========================================
-# TAB 6: Production-line workstation analysis
-# ==========================================
-with tabs[5]:
     st.markdown("### 📊 產線工作站統計分析")
     st.caption(
         "依批次日期、產線及工作站彙總參數偏差和厚度異常關聯。"

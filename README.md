@@ -1,6 +1,6 @@
 # FCCL 製程優化與基材厚度分析
 
-本專案提供 FCCL 厚度與製程參數資料、資料分析流程，以及以 Random Forest 評估異常批次的 Streamlit 儀表板。互動頁面採用六個分頁，呈現批次資料庫、跨幅厚度剖面、製程偏差與根因、調機模擬、設備參數，以及產線工作站統計分析。
+本專案提供 FCCL 厚度與製程參數資料、資料分析流程，以及以 Random Forest 評估異常批次的 Streamlit 儀表板。儀表板以五個分頁呈現批次資料庫、跨幅厚度剖面、製程偏差與根因、調機模擬，以及產線工作站統計分析；製程設備參數改由頁面右上角齒輪圖示開啟側邊對話視窗。
 
 ## 專案內容
 
@@ -13,7 +13,7 @@
 - 工作站統計分析：依產線、產品、日期統計工作站參數偏差、QCP 超界及同批厚度 NG 關聯；缺少站內實測欄位的站點會標示資料不足。
 - `models/random_forest_anomaly.joblib`：使用厚度剖面與批次製程欄位預測注入異常的示範模型。
 - `models/equipment_anomaly_model.joblib`：以設備參數偏差預測設備異常，供調機模擬器使用。
-- `data/processed/fccl_equipment_specs.json`：第五頁依產品型號顯示的設備規格。
+- `data/processed/fccl_equipment_specs.json`：頁面右上角設備參數視窗及工作站分析使用的產品設備規格。
 - `data/processed/`：清理後的批次資料、逐測點資料及製程偏差特徵。
 
 ## 執行資料準備 notebook
