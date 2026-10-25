@@ -605,9 +605,6 @@ def build_database_view(dataframe):
     database_view["Line"] = database_view["Line"].map(
         {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
     ).fillna(database_view["Line"])
-    database_view["Anomaly_Pattern"] = database_view["Anomaly_Pattern"].map(
-        anomaly_display_names
-    ).fillna(database_view["Anomaly_Pattern"])
     return database_view.rename(columns={
         "Batch_ID": "批次編號",
         "Sample_Date": "取樣日期",
