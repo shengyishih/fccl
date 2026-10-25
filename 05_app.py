@@ -1079,15 +1079,6 @@ with tabs[4]:
                 with_values = group[group["Has_Monitoring"]]
                 deviation_rows = with_values[with_values["Deviation_Event"]]
                 qcp_rows = with_values[with_values["QCP_Event"]]
-                same_batch_ng = with_values[with_values["QC_Result"].eq("NG")]
-                if station_code == "WS-07":
-                    anomaly_rows = group[group["QC_Result"].eq("NG")]
-                    patterns = anomaly_rows.loc[
-                        ~anomaly_rows["Cross_Section_Type"].eq("正常／近似平坦"), "Cross_Section_Type"
-                    ].value_counts()
-                else:
-                    # Batch-level synthetic anomaly labels are not workstation defect types.
-                    patterns = pd.Series(dtype="int64")
                 if not group["Has_Monitoring"].any():
                     judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
                 elif station_code == "WS-07":
@@ -1107,10 +1098,6 @@ with tabs[4]:
                     "有實測值批次": int(with_values["Batch_ID"].nunique()),
                     "偏離 Target ≥1% 批次": int(deviation_rows["Batch_ID"].nunique()),
                     "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
-                    "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
-                    "常見異常型態": (
-                        patterns.index[0] if len(patterns) else "—"
-                    ),
                     "研判": judgment,
                 })
 
@@ -1137,8 +1124,7 @@ with tabs[4]:
             else:
                 detail_view = detail_rows[[
                     "Sample_Date", "Line", "Station_Code", "Station_Name", "Batch_ID",
-                    "Product_Model", "Tracked_Parameters", "Signal_Details", "QC_Result",
-                    "Anomaly_Pattern", "Cross_Section_Type",
+                    "Product_Model", "Tracked_Parameters", "Signal_Details", "Cross_Section_Type",
                 ]].rename(columns={
                     "Sample_Date": "日期",
                     "Line": "產線",
@@ -1148,14 +1134,9 @@ with tabs[4]:
                     "Product_Model": "產品型號",
                     "Tracked_Parameters": "本站監測項目",
                     "Signal_Details": "站內偏差明細",
-                    "QC_Result": "同批厚度判定",
-                    "Anomaly_Pattern": "合成異常情境",
                     "Cross_Section_Type": "TD截面型態",
                 })
                 detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
-                detail_view["合成異常情境"] = detail_view["合成異常情境"].map(
-                    anomaly_display_names
-                ).fillna(detail_view["合成異常情境"])
                 st.dataframe(
                     detail_view,
                     hide_index=True,
