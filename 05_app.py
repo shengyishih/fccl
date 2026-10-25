@@ -198,17 +198,6 @@ def load_data():
     if missing_actual_columns:
         missing_counts = df[missing_actual_columns].isna().sum().to_dict()
         raise ValueError(f"批次實測值欄位不可缺值：{missing_counts}")
-    ws09_columns = [
-        f"{key}_{kind}"
-        for key in ("ws09_peel_strength", "ws09_solder_temp", "ws09_dielectric_constant")
-        for kind in ("target", "actual")
-    ]
-    missing_ws09_columns = [column for column in ws09_columns if column not in df.columns]
-    if missing_ws09_columns:
-        raise ValueError(f"批次資料缺少 WS-09 檢測欄位：{missing_ws09_columns}")
-    if df[ws09_columns].isna().any().any():
-        raise ValueError("WS-09 剝離強度、耐焊錫測試溫度及介電常數的批次 Target／Actual 不可缺值。")
-
     # Keep the product-specific WS-07 thickness-control bands aligned with the reference table.
     expected_specs = pd.DataFrame([
         {
@@ -986,9 +975,6 @@ with tabs[4]:
             ("pressure", "WS-05", "壓合/拉伸線壓力", "壓合線壓力"),
             ("cure", "WS-06", "熟化恆溫保溫溫度", "熟化溫度"),
             ("rewind", "WS-08", "收捲張力起始基準值", "收捲張力"),
-            ("ws09_peel_strength", "WS-09", "銅箔常態剝離強度", "剝離強度"),
-            ("ws09_solder_temp", "WS-09", "無鉛高溫耐焊錫測試溫度", "耐焊錫測試溫度"),
-            ("ws09_dielectric_constant", "WS-09", "高頻介電常數", "介電常數 Dk"),
         ]
 
         station_records = []

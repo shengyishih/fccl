@@ -244,36 +244,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 1.65,
-            "unit": "N/mm",
-            "lower": 1.35,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -520,36 +490,6 @@
             "lower": 38.0,
             "upper": 50.0,
             "qcp": true
-          }
-        ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 1.65,
-            "unit": "N/mm",
-            "lower": 1.35,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
           }
         ]
       }
@@ -800,36 +740,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 1.25,
-            "unit": "N/mm",
-            "lower": 1.05,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -1076,36 +986,6 @@
             "lower": 38.0,
             "upper": 50.0,
             "qcp": true
-          }
-        ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 1.25,
-            "unit": "N/mm",
-            "lower": 1.05,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
           }
         ]
       }
@@ -1356,36 +1236,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 0.95,
-            "unit": "N/mm",
-            "lower": 0.8,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -1634,36 +1484,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 0.95,
-            "unit": "N/mm",
-            "lower": 0.8,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -1909,36 +1729,6 @@
             "unit": "N/m",
             "lower": 22.0,
             "upper": 34.0,
-            "qcp": true
-          }
-        ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 0.95,
-            "unit": "N/mm",
-            "lower": 0.8,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz (*QCP)",
-            "target": 2.85,
-            "unit": "ε",
-            "lower": 2.75,
-            "upper": 2.95,
             "qcp": true
           }
         ]
@@ -2190,36 +1980,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 0.95,
-            "unit": "N/mm",
-            "lower": 0.8,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -2468,36 +2228,6 @@
             "qcp": true
           }
         ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 1.25,
-            "unit": "N/mm",
-            "lower": 1.05,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
-          }
-        ]
       }
     ]
   },
@@ -2744,36 +2474,6 @@
             "lower": 22.0,
             "upper": 34.0,
             "qcp": true
-          }
-        ]
-      },
-      {
-        "code": "WS-09",
-        "name": "物性品保實驗室與終檢站（萬能電子拉力試驗機 / 向量網路分析儀 / 無鉛耐焊錫 爐）",
-        "parameters": [
-          {
-            "name": "180° 銅箔常態剝離強度 (*QCP)",
-            "target": 0.95,
-            "unit": "N/mm",
-            "lower": 0.8,
-            "upper": 2.2,
-            "qcp": true
-          },
-          {
-            "name": "無鉛高溫耐焊錫測試溫度 (*QCP)",
-            "target": 288.0,
-            "unit": "°C",
-            "lower": 285.0,
-            "upper": 292.0,
-            "qcp": true
-          },
-          {
-            "name": "高頻介電常數 Dk @10GHz",
-            "target": 3.3,
-            "unit": "ε",
-            "lower": 3.15,
-            "upper": 3.45,
-            "qcp": false
           }
         ]
       }
