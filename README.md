@@ -4,6 +4,8 @@
 
 ## 專案內容
 
+- `docs/background/FCCL_thickness_profile_classification.md`：保存 FCCL 基材厚度截面異常分類的原始對話，供後續分類、標籤設計與分析流程延續參考。
+
 - `fccl_thickness_dataset.csv`：原始資料集，包含 492 筆批次紀錄與厚度量測、品質檢驗及製程參數。
 - `generate_fccl_thickness_dataset.ipynb`：原始資料集的產生流程。
 - `02_data_preparation.ipynb`：資料清理、探索性資料分析（EDA）、特徵轉換與 CSV 匯出。

@@ -113,6 +113,59 @@ ANOMALY_META = {
     'Mean_Shift': {'name_zh': '全幅整體厚度偏移', 'cause': '供料齒輪泵轉速 (Pump Flow) 設定偏差或樹脂膠水固成份/黏度配比漂移', 'action': '校正精密計量齒輪泵流量，檢測膠槽黏度計並即時調整溶劑稀釋配比'}
 }
 
+CROSS_SECTION_LABELS = [
+    "正常／近似平坦", "中央厚型", "中央薄型", "左厚右薄型",
+    "左薄右厚型", "波浪起伏型", "局部異常型",
+]
+
+
+def classify_thickness_quality(row):
+    """Separate specification compliance from the TD profile shape."""
+    points = np.array([row[f"Point_{i}_um"] for i in range(1, 11)], dtype=float)
+    lsl, usl = float(row["LSL_um"]), float(row["USL_um"])
+    if np.all((points >= lsl) & (points <= usl)):
+        return "合格"
+    mean = float(points.mean())
+    if mean > usl:
+        return "不合格－整體偏厚（平均超上限）"
+    if mean < lsl:
+        return "不合格－整體偏薄（平均低於下限）"
+    return "不合格－局部測點超規（平均仍在規格內）"
+
+
+def classify_cross_section(row):
+    """Classify the centered TD shape; overall thickness offset is not a shape."""
+    points = np.array([row[f"Point_{i}_um"] for i in range(1, 11)], dtype=float)
+    centered = points - points.mean()
+    tol = float(row["Tolerance_um"])
+    threshold = max(0.15, tol * 0.2)
+    center_delta = centered[3:7].mean() - centered[[0, 1, 8, 9]].mean()
+    side_delta = centered[:3].mean() - centered[7:].mean()
+
+    # A single isolated point is identified before broad profile trends.
+    residual = centered.copy()
+    residual[0] = residual[-1] = 0.0
+    for i in range(1, 9):
+        residual[i] -= (centered[i - 1] + centered[i + 1]) / 2
+    isolated = np.abs(residual)
+    peak = int(np.argmax(isolated))
+    if isolated[peak] >= max(0.4, tol * 0.35) and isolated[peak] >= 1.8 * (np.median(isolated) + 0.05):
+        return "局部異常型"
+    if center_delta >= threshold:
+        return "中央厚型"
+    if center_delta <= -threshold:
+        return "中央薄型"
+    if side_delta >= threshold:
+        return "左厚右薄型"
+    if side_delta <= -threshold:
+        return "左薄右厚型"
+    differences = np.diff(centered)
+    directions = np.sign(differences[np.abs(differences) >= 0.08])
+    turns = int(np.count_nonzero(directions[1:] * directions[:-1] < 0)) if len(directions) > 1 else 0
+    if turns >= 4 and np.ptp(centered) >= max(0.6, tol * 0.6):
+        return "波浪起伏型"
+    return "正常／近似平坦"
+
 # 3. Data Loader with Intelligent Path Resolution
 @st.cache_data
 def load_data():
@@ -175,6 +228,13 @@ def load_data():
     ).all(axis=1)
     if not specs_match.all():
         raise ValueError("批次資料的厚度規格與產品型號允差對照表不一致。")
+
+    df["Quality_Judgment"] = df.apply(classify_thickness_quality, axis=1)
+    df["Cross_Section_Type"] = df.apply(classify_cross_section, axis=1)
+    derived_qc = df["Quality_Judgment"].eq("合格")
+    stored_qc = df["QC_Result"].eq("PASS")
+    if not derived_qc.equals(stored_qc):
+        raise ValueError("QC_Result 與10點厚度及產品 LSL/USL 判定不一致。")
 
     # Calculate Process Capability (Cp, Cpk, Ca)
     def calc_spc(row):
@@ -466,8 +526,12 @@ anomaly_labels = {
 }
 anomaly_display_names = {code: label for label, code in anomaly_labels.items()}
 anomaly_options = {"全部模式": None, **{label: code for label, code in anomaly_labels.items()}}
-anomaly_filter = st.sidebar.selectbox("截面異常模式", list(anomaly_options))
+anomaly_filter = st.sidebar.selectbox("合成異常情境（資料標籤）", list(anomaly_options))
 anomaly_key = anomaly_options[anomaly_filter]
+
+profile_options = {"全部截面型態": None, **{label: label for label in CROSS_SECTION_LABELS}}
+profile_filter = st.sidebar.selectbox("TD 截面型態", list(profile_options))
+profile_key = profile_options[profile_filter]
 
 date_mode = st.sidebar.selectbox("日期篩選方式", ["不限制", "單日", "月份", "季度", "年度"])
 date_source = line_data.copy()
@@ -479,6 +543,8 @@ elif qc_filter.startswith("NG"):
     date_source = date_source[date_source["QC_Result"] == "NG"]
 if anomaly_key is not None:
     date_source = date_source[date_source["Anomaly_Pattern"] == anomaly_key]
+if profile_key is not None:
+    date_source = date_source[date_source["Cross_Section_Type"] == profile_key]
 available_dates = pd.to_datetime(date_source["Sample_Date"], errors="coerce").dropna()
 if date_mode == "單日":
     date_options = sorted(available_dates.dt.strftime("%Y-%m-%d").unique().tolist(), reverse=True)
@@ -502,6 +568,8 @@ elif qc_filter.startswith("NG"):
     df_filtered = df_filtered[df_filtered['QC_Result'] == "NG"]
 if anomaly_key is not None:
     df_filtered = df_filtered[df_filtered['Anomaly_Pattern'] == anomaly_key]
+if profile_key is not None:
+    df_filtered = df_filtered[df_filtered["Cross_Section_Type"] == profile_key]
 if date_selection is not None:
     sample_dates = pd.to_datetime(df_filtered["Sample_Date"], errors="coerce")
     if date_mode == "單日":
@@ -519,7 +587,7 @@ if len(df_filtered) == 0:
     st.stop()
 
 # Let a selected row in the batch table drive the current analysis batch and KPI cards.
-filter_signature = (line_key, model_filter, qc_filter, anomaly_key, date_mode, date_selection)
+filter_signature = (line_key, model_filter, qc_filter, anomaly_key, profile_key, date_mode, date_selection)
 table_widget_key = "batch_database_table_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
 table_state = st.session_state.get(table_widget_key)
 selected_rows = getattr(getattr(table_state, "selection", None), "rows", []) if table_state is not None else []
@@ -531,14 +599,12 @@ else:
 
 def build_database_view(dataframe):
     database_view = dataframe[[
-        "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "QC_Result", "Anomaly_Pattern",
+        "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "Quality_Judgment",
+        "Cross_Section_Type", "Anomaly_Pattern",
     ]].copy()
     database_view["Line"] = database_view["Line"].map(
         {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
     ).fillna(database_view["Line"])
-    database_view["QC_Result"] = database_view["QC_Result"].map(
-        {"PASS": "合格", "NG": "不合格"}
-    ).fillna(database_view["QC_Result"])
     database_view["Anomaly_Pattern"] = database_view["Anomaly_Pattern"].map(
         anomaly_display_names
     ).fillna(database_view["Anomaly_Pattern"])
@@ -548,8 +614,9 @@ def build_database_view(dataframe):
         "Line": "生產線",
         "Product_Model": "產品型號",
         "cpk": "Cpk",
-        "QC_Result": "品質判定",
-        "Anomaly_Pattern": "截面異常模式",
+        "Quality_Judgment": "品質判定",
+        "Cross_Section_Type": "TD截面型態",
+        "Anomaly_Pattern": "合成異常情境",
     })
 
 
@@ -579,23 +646,22 @@ with col4:
     """, unsafe_allow_html=True)
 
 with col5:
-    is_pass = current_batch['QC_Result'] == 'PASS'
+    is_pass = current_batch['Quality_Judgment'] == '合格'
     badge_cls = "badge-pass" if is_pass else "badge-ng"
     st.markdown(f"""
     <div class="metric-card">
-        <div class="metric-title">當前批號 QC 判定</div>
-        <div class="metric-val" style="color:{'#34d399' if is_pass else '#f87171'};">{current_batch['QC_Result']}</div>
-        <small style="color:#94a3b8;">均值: {current_batch['Thickness_Mean_um']:.2f}µm (Cpk {current_batch['cpk']:.2f})</small>
+        <div class="metric-title">基材品質判定</div>
+        <div class="metric-val" style="font-size:1.05rem; color:{'#34d399' if is_pass else '#f87171'};">{current_batch['Quality_Judgment']}</div>
+        <small style="color:#94a3b8;">逐點依 LSL/USL 判定 · 均值 {current_batch['Thickness_Mean_um']:.2f}µm · Cpk {current_batch['cpk']:.2f}</small>
     </div>
     """, unsafe_allow_html=True)
 
 with col6:
-    pattern_meta = ANOMALY_META.get(current_batch['Anomaly_Pattern'], ANOMALY_META['Normal'])
     st.markdown(f"""
     <div class="metric-card">
-        <div class="metric-title">截面特徵模式</div>
-        <div class="metric-val" style="font-size:1.05rem; color:#f472b6;">{current_batch['Anomaly_Pattern']}</div>
-        <small style="color:#cbd5e1;">{pattern_meta['name_zh'].split(' ')[0]}</small>
+        <div class="metric-title">TD 截面型態</div>
+        <div class="metric-val" style="font-size:1.05rem; color:#f472b6;">{current_batch['Cross_Section_Type']}</div>
+        <small style="color:#cbd5e1;">由10點橫向厚度分布判定</small>
     </div>
     """, unsafe_allow_html=True)
 
@@ -631,8 +697,6 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📐 基材機械厚度跨幅 10 點剖面 (Cross-Web TD Profile)")
     st.caption(f"批號: {current_batch['Batch_ID']} · 型號: {current_batch['Product_Model']} · 取樣日期: {current_batch['Sample_Date']:%Y-%m-%d} · 檢測方法: IPC-TM-650 2.2.18")
-    st.caption("公差帶依 WS-07 在線測厚站的產品總厚度管制值繪製；此管制值不一定等同客戶最終驗收規格。設備可設定範圍 0.8～3 µm 不作為產品允差。")
-
     points = [current_batch[f'Point_{i}_um'] for i in range(1, 11)]
     product_spec = FCCL_PRODUCT_SPECS[current_batch['Product_Model']]
     nominal = product_spec['nominal']
@@ -696,7 +760,6 @@ with tabs[1]:
 # ==========================================
 with tabs[2]:
     st.markdown("### ⚙️ 機台製程參數偏差瀑布圖與缺陷成因關聯")
-    st.caption("10 點量測 QC 與設備參數偏差分開呈現；設備模型機率不能取代厚度規格判定。")
     equipment_deviation_pct = pd.Series({
         key: pd.to_numeric(pd.Series([current_batch.get(f"{key}_deviation_pct")]), errors="coerce").iloc[0]
         for key, _label, _unit in EQUIPMENT_PARAMETERS
@@ -1017,6 +1080,7 @@ with tabs[4]:
                     "QCP_Event": bool(qcp_event),
                     "QC_Result": batch["QC_Result"],
                     "Anomaly_Pattern": batch["Anomaly_Pattern"],
+                    "Cross_Section_Type": batch["Cross_Section_Type"],
                 })
 
         station_batches = pd.DataFrame(station_records)
@@ -1041,7 +1105,14 @@ with tabs[4]:
                     anomaly_rows = group[group["QC_Result"].eq("NG")]
                 else:
                     anomaly_rows = deviation_rows
-                patterns = anomaly_rows.loc[~anomaly_rows["Anomaly_Pattern"].eq("Normal"), "Anomaly_Pattern"].value_counts()
+                if station_code == "WS-07":
+                    patterns = anomaly_rows.loc[
+                        ~anomaly_rows["Cross_Section_Type"].eq("正常／近似平坦"), "Cross_Section_Type"
+                    ].value_counts()
+                else:
+                    patterns = anomaly_rows.loc[
+                        ~anomaly_rows["Anomaly_Pattern"].eq("Normal"), "Anomaly_Pattern"
+                    ].value_counts()
                 if not group["Has_Monitoring"].any():
                     judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
                 elif station_code == "WS-07":
@@ -1062,7 +1133,10 @@ with tabs[4]:
                     "偏離 Target ≥1% 批次": int(deviation_rows["Batch_ID"].nunique()),
                     "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
                     "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
-                    "常見異常型態": anomaly_display_names.get(patterns.index[0], patterns.index[0]) if len(patterns) else "—",
+                    "常見異常型態": (
+                        patterns.index[0] if station_code == "WS-07"
+                        else anomaly_display_names.get(patterns.index[0], patterns.index[0])
+                    ) if len(patterns) else "—",
                     "研判": judgment,
                 })
 
@@ -1090,7 +1164,7 @@ with tabs[4]:
                 detail_view = detail_rows[[
                     "Sample_Date", "Line", "Station_Code", "Station_Name", "Batch_ID",
                     "Product_Model", "Tracked_Parameters", "Signal_Details", "QC_Result",
-                    "Anomaly_Pattern",
+                    "Anomaly_Pattern", "Cross_Section_Type",
                 ]].rename(columns={
                     "Sample_Date": "日期",
                     "Line": "產線",
@@ -1101,12 +1175,13 @@ with tabs[4]:
                     "Tracked_Parameters": "本站監測項目",
                     "Signal_Details": "站內偏差明細",
                     "QC_Result": "同批厚度判定",
-                    "Anomaly_Pattern": "厚度異常型態",
+                    "Anomaly_Pattern": "合成異常情境",
+                    "Cross_Section_Type": "TD截面型態",
                 })
                 detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
-                detail_view["厚度異常型態"] = detail_view["厚度異常型態"].map(
+                detail_view["合成異常情境"] = detail_view["合成異常情境"].map(
                     anomaly_display_names
-                ).fillna(detail_view["厚度異常型態"])
+                ).fillna(detail_view["合成異常情境"])
                 st.dataframe(
                     detail_view,
                     hide_index=True,
