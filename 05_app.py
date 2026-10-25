@@ -1095,9 +1095,7 @@ with tabs[4]:
                     "工作站名稱": "／".join(sorted(group["Station_Name"].dropna().unique())),
                     "監測參數": "；".join(sorted(with_values["Tracked_Parameters"].unique())) or "無站內實測欄位",
                     "批次數": int(group["Batch_ID"].nunique()),
-                    "有實測值批次": int(with_values["Batch_ID"].nunique()),
                     "偏離 Target ≥1% 批次": int(deviation_rows["Batch_ID"].nunique()),
-                    "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
                     "研判": judgment,
                 })
 
