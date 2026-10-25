@@ -816,6 +816,16 @@ with tabs[4]:
     if analysis_batches.empty:
         st.info("左側篩選條件下沒有可供分析的批次資料。")
     else:
+        st.subheader("批次全數據庫")
+        station_database_view = build_database_view(analysis_batches)
+        st.dataframe(
+            station_database_view,
+            hide_index=True,
+            width="stretch",
+            key="station_analysis_batch_database",
+            alt="依左側篩選條件顯示與批次全數據庫相同欄位的批次資料",
+        )
+
         station_parameter_map = [
             ("speed", "WS-01", "工作線速度", "產線速度"),
             ("unwind", "WS-01", "放捲張力設定", "放捲張力"),
@@ -1003,15 +1013,5 @@ with tabs[4]:
                     width="stretch",
                     alt="依左側篩選條件列出各產線工作站異常批次及關聯資訊",
                 )
-
-            st.subheader("批次全數據庫")
-            station_database_view = build_database_view(analysis_batches)
-            st.dataframe(
-                station_database_view,
-                hide_index=True,
-                width="stretch",
-                key="station_analysis_batch_database",
-                alt="依左側篩選條件顯示與批次全數據庫相同欄位的批次資料",
-            )
 
 # ==========================================
