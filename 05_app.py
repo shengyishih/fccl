@@ -129,6 +129,17 @@ def load_data():
 
     df["Sample_Date"] = pd.to_datetime(df["Sample_Date"], errors="coerce")
 
+    ws04_columns = [
+        f"dry_zone_{zone}_{kind}"
+        for zone in ("1_2", "3_4", "5_6")
+        for kind in ("target", "actual")
+    ]
+    missing_ws04_columns = [column for column in ws04_columns if column not in df.columns]
+    if missing_ws04_columns:
+        raise ValueError(f"批次資料缺少 WS-04 溫區欄位：{missing_ws04_columns}")
+    if df[ws04_columns].isna().any().any():
+        raise ValueError("WS-04 三個乾燥溫區的批次 Target／Actual 不可缺值。")
+
     # Keep the product-specific WS-07 thickness-control bands aligned with the reference table.
     expected_specs = pd.DataFrame([
         {
@@ -175,7 +186,15 @@ def load_data():
 def load_equipment_anomaly_model():
     if not EQUIPMENT_MODEL_PATH.exists():
         raise FileNotFoundError(f"找不到設備異常分類模型：{EQUIPMENT_MODEL_PATH}")
-    return joblib.load(EQUIPMENT_MODEL_PATH)
+    bundle = joblib.load(EQUIPMENT_MODEL_PATH)
+    required_ws04_features = {
+        f"dry_zone_{zone}_deviation"
+        for zone in ("1_2", "3_4", "5_6")
+    }
+    missing_ws04_features = required_ws04_features - set(bundle.get("feature_columns", []))
+    if missing_ws04_features:
+        raise ValueError(f"設備異常模型缺少 WS-04 溫區特徵：{sorted(missing_ws04_features)}")
+    return bundle
 
 
 @st.cache_data
@@ -193,6 +212,9 @@ EQUIPMENT_PARAMETERS = [
     ("gap", "模頭開縫", "µm"),
     ("pump", "計量泵流量", "mL/min"),
     ("wet", "塗布濕膜厚度", "µm"),
+    ("dry_zone_1_2", "乾燥區 1-2 溫度", "°C"),
+    ("dry_zone_3_4", "乾燥區 3-4 溫度", "°C"),
+    ("dry_zone_5_6", "乾燥區 5-6 溫度", "°C"),
     ("temp", "亞胺化溫度", "°C"),
     ("pressure", "壓合線壓力", "N/mm"),
     ("cure", "熟化溫度", "°C"),
@@ -638,6 +660,9 @@ with tabs[2]:
         "gap": "模頭開縫會影響塗布量與橫向均勻度。",
         "pump": "計量泵流量會影響塗布量與整體厚度。",
         "wet": "濕膜厚度會影響乾燥後的基材厚度。",
+        "dry_zone_1_2": "初級揮發區溫度會影響溶劑揮發與表面成膜。",
+        "dry_zone_3_4": "中級濃縮區溫度會影響乾燥速率與膜層均勻性。",
+        "dry_zone_5_6": "預固化區溫度會影響後續固化與厚度穩定。",
         "temp": "亞胺化溫度會影響固化與尺寸穩定。",
         "pressure": "壓合線壓力會影響貼合與厚度分布。",
         "cure": "熟化溫度會影響黏著與殘餘應力。",
@@ -833,6 +858,9 @@ with tabs[4]:
             ("gap", "WS-03", "模頭唇口開縫間距", "模頭開縫"),
             ("pump", "WS-03", "高精度計量泵流量", "計量泵流量"),
             ("wet", "WS-03", "塗布濕膜厚度目標", "塗布濕膜厚度"),
+            ("dry_zone_1_2", "WS-04", "Zone 1-2 初級低溫揮發區", "乾燥區 1-2 溫度"),
+            ("dry_zone_3_4", "WS-04", "Zone 3-4 中級濃縮區溫度", "乾燥區 3-4 溫度"),
+            ("dry_zone_5_6", "WS-04", "Zone 5-6 預固化/凝膠區", "乾燥區 5-6 溫度"),
             ("temp", "WS-05", "亞胺化核心峰值溫度", "亞胺化溫度"),
             ("pressure", "WS-05", "壓合/拉伸線壓力", "壓合線壓力"),
             ("cure", "WS-06", "熟化恆溫保溫溫度", "熟化溫度"),
