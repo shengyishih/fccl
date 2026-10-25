@@ -532,9 +532,6 @@ else:
 def build_database_view(dataframe):
     database_view = dataframe[[
         "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "QC_Result", "Anomaly_Pattern",
-        "ws09_peel_strength_target", "ws09_peel_strength_actual",
-        "ws09_solder_temp_target", "ws09_solder_temp_actual",
-        "ws09_dielectric_constant_target", "ws09_dielectric_constant_actual",
     ]].copy()
     database_view["Line"] = database_view["Line"].map(
         {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
@@ -553,12 +550,6 @@ def build_database_view(dataframe):
         "cpk": "Cpk",
         "QC_Result": "品質判定",
         "Anomaly_Pattern": "截面異常模式",
-        "ws09_peel_strength_target": "WS-09 剝離強度目標（N/mm）",
-        "ws09_peel_strength_actual": "WS-09 剝離強度實測（N/mm）",
-        "ws09_solder_temp_target": "WS-09 耐焊錫測試溫度目標（°C）",
-        "ws09_solder_temp_actual": "WS-09 耐焊錫測試溫度實測（°C）",
-        "ws09_dielectric_constant_target": "WS-09 介電常數目標",
-        "ws09_dielectric_constant_actual": "WS-09 介電常數實測",
     })
 
 
