@@ -854,7 +854,6 @@ with tabs[3]:
 
     st.subheader("模型建議調整數據")
     if model_bundle.get("data_is_synthetic"):
-        st.caption("模型以合成資料中的注入異常標籤訓練；以下為符合本產品型號參數規格的單項情境模擬，不代表真實設備故障診斷或製程因果結論。")
     if recommendations.empty:
         st.info("目前沒有單項設備偏差達 1%，因此不產生單項調機建議；這不代表批次 QC 判定合格。")
     else:
@@ -890,7 +889,6 @@ with tabs[3]:
     st.subheader("產品型號適用設備參數")
     adjusted = {}
     with st.form(key=f"simulation_form_{batch_id}"):
-        st.caption("參數名稱、單位及 Recipe Target 取自目前產品型號的專案資料；不適用或缺值的參數不顯示。")
         input_columns = st.columns(2)
         visible_parameters = []
         for index, (parameter_key, label, unit) in enumerate(EQUIPMENT_PARAMETERS):
@@ -1078,12 +1076,14 @@ with tabs[4]:
             st.info("此日期區間沒有符合條件的批次資料。")
         else:
             monitored_batches = station_batches[station_batches["Has_Monitoring"]]
-            station_deviation_count = int(monitored_batches["Deviation_Event"].sum())
+            station_deviation_batch_count = int(
+                monitored_batches.loc[monitored_batches["Deviation_Event"], "Batch_ID"].nunique()
+            )
             qc_ng_batches = int(analysis_batches["QC_Result"].eq("NG").sum())
             kpi_columns = st.columns(3)
             kpi_columns[0].metric("符合條件批次", f"{analysis_batches['Batch_ID'].nunique():,}")
             kpi_columns[1].metric("10點厚度 NG 批次", f"{qc_ng_batches:,}")
-            kpi_columns[2].metric("工作站偏差 ≥1% 批次站次", f"{station_deviation_count:,}")
+            kpi_columns[2].metric("工作站偏差 ≥1% 批次數", f"{station_deviation_batch_count:,}")
 
             summary_rows = []
             for (line, station_code), group in station_batches.groupby(["Line", "Station_Code"], sort=True):
