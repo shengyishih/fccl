@@ -1082,7 +1082,7 @@ with tabs[4]:
                 if not group["Has_Monitoring"].any():
                     judgment = "沒有本站實測欄位；需補收站內資料後才能研判。"
                 elif station_code == "WS-07":
-                    judgment = f"在線厚度管制帶超界 {len(anomaly_rows)} 批；確認測厚校正、跨幅均勻性及批次追溯。" if len(anomaly_rows) else "目前區間未見厚度管制帶超界。"
+                    judgment = f"在線厚度管制帶超界 {len(qcp_rows)} 批；確認測厚校正、跨幅均勻性及批次追溯。" if len(qcp_rows) else "目前區間未見厚度管制帶超界。"
                 elif len(qcp_rows):
                     judgment = f"有 {len(qcp_rows)} 批站內參數超出 QCP 上下限；優先查核站內設備與 Recipe。"
                 elif len(deviation_rows):
