@@ -448,6 +448,32 @@ if selected_rows and 0 <= selected_rows[0] < len(df_filtered):
 else:
     current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
 
+
+def build_database_view(dataframe):
+    database_view = dataframe[[
+        "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "QC_Result", "Anomaly_Pattern"
+    ]].copy()
+    database_view["Line"] = database_view["Line"].map(
+        {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
+    ).fillna(database_view["Line"])
+    database_view["QC_Result"] = database_view["QC_Result"].map(
+        {"PASS": "合格", "NG": "不合格"}
+    ).fillna(database_view["QC_Result"])
+    anomaly_names = {code: label for label, code in anomaly_labels.items()}
+    database_view["Anomaly_Pattern"] = database_view["Anomaly_Pattern"].map(
+        anomaly_names
+    ).fillna(database_view["Anomaly_Pattern"])
+    return database_view.rename(columns={
+        "Batch_ID": "批次編號",
+        "Sample_Date": "取樣日期",
+        "Line": "生產線",
+        "Product_Model": "產品型號",
+        "cpk": "Cpk",
+        "QC_Result": "品質判定",
+        "Anomaly_Pattern": "截面異常模式",
+    })
+
+
 # 5. Current batch summary cards
 title_column, settings_column = st.columns([10, 2], vertical_alignment="center")
 with title_column:
@@ -510,26 +536,11 @@ tabs = st.tabs([
 # ==========================================
 with tabs[0]:
     st.markdown("### 📋 批次全數據庫")
-    database_view = df_filtered[[
-        'Batch_ID', 'Sample_Date', 'Line', 'Product_Model', 'cpk', 'QC_Result', 'Anomaly_Pattern'
-    ]].copy()
-    database_view["Line"] = database_view["Line"].map({"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}).fillna(database_view["Line"])
-    database_view["QC_Result"] = database_view["QC_Result"].map({"PASS": "合格", "NG": "不合格"}).fillna(database_view["QC_Result"])
-    anomaly_names = {code: label for label, code in anomaly_labels.items()}
-    database_view["Anomaly_Pattern"] = database_view["Anomaly_Pattern"].map(anomaly_names).fillna(database_view["Anomaly_Pattern"])
-    database_view = database_view.rename(columns={
-        "Batch_ID": "批次編號",
-        "Sample_Date": "取樣日期",
-        "Line": "生產線",
-        "Product_Model": "產品型號",
-        "cpk": "Cpk",
-        "QC_Result": "品質判定",
-        "Anomaly_Pattern": "截面異常模式",
-    })
+    database_view = build_database_view(df_filtered)
     st.dataframe(
         database_view,
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
         key=table_widget_key,
         on_select="rerun",
         selection_mode="single-row",
@@ -992,5 +1003,15 @@ with tabs[4]:
                     width="stretch",
                     alt="依左側篩選條件列出各產線工作站異常批次及關聯資訊",
                 )
+
+            st.subheader("批次全數據庫")
+            station_database_view = build_database_view(analysis_batches)
+            st.dataframe(
+                station_database_view,
+                hide_index=True,
+                width="stretch",
+                key="station_analysis_batch_database",
+                alt="依左側篩選條件顯示與批次全數據庫相同欄位的批次資料",
+            )
 
 # ==========================================
