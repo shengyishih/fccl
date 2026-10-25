@@ -824,6 +824,7 @@ with tabs[2]:
     st.plotly_chart(fig_waterfall, use_container_width=True)
 
     # Diagnostic recommendation callout
+    pattern_meta = ANOMALY_META.get(current_batch["Anomaly_Pattern"], ANOMALY_META["Normal"])
     st.info(f"**【製程根因推定結論】**: {pattern_meta['cause']}\n\n**【工程師處置建議】**: {pattern_meta['action']}")
 
 # ==========================================
