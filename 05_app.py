@@ -804,46 +804,17 @@ with tabs[4]:
     )
 
     equipment_specs = load_equipment_specs()
-    analysis_lines = sorted({spec["line"] for spec in equipment_specs.values()})
-    analysis_controls = st.columns([1, 2, 3])
-    selected_analysis_lines = analysis_controls[0].multiselect(
-        "產線",
-        analysis_lines,
-        default=analysis_lines,
-        key="station_analysis_lines",
+    analysis_line_label = "全部產線" if line_key is None else str(line_key)
+    analysis_date_label = date_mode if date_selection is None else f"{date_mode}：{date_selection}"
+    st.caption(
+        f"目前採用左側篩選｜生產線別：{analysis_line_label}｜產品型號：{model_filter}｜"
+        f"日期：{analysis_date_label}｜QC：{qc_filter}｜截面異常：{anomaly_filter}"
     )
-    available_analysis_models = sorted({
-        model for model, spec in equipment_specs.items()
-        if spec["line"] in selected_analysis_lines
-    })
-    selected_analysis_models = analysis_controls[1].multiselect(
-        "產品型號",
-        available_analysis_models,
-        default=available_analysis_models,
-        key="station_analysis_models",
-    )
-    min_sample_date = df_raw["Sample_Date"].min().date()
-    max_sample_date = df_raw["Sample_Date"].max().date()
-    selected_date_range = analysis_controls[2].date_input(
-        "統計日期區間",
-        value=(min_sample_date, max_sample_date),
-        min_value=min_sample_date,
-        max_value=max_sample_date,
-        key="station_analysis_dates",
-    )
+    analysis_batches = df_filtered.copy()
 
-    if not selected_analysis_lines or not selected_analysis_models:
-        st.info("請至少選擇一條產線及一個產品型號。")
-    elif not isinstance(selected_date_range, (tuple, list)) or len(selected_date_range) != 2:
-        st.info("請選擇完整的起訖日期。")
+    if analysis_batches.empty:
+        st.info("左側篩選條件下沒有可供分析的批次資料。")
     else:
-        start_date, end_date = selected_date_range
-        analysis_batches = df_raw[
-            df_raw["Line"].astype(str).isin(selected_analysis_lines)
-            & df_raw["Product_Model"].astype(str).isin(selected_analysis_models)
-            & df_raw["Sample_Date"].dt.date.between(start_date, end_date)
-        ].copy()
-
         station_parameter_map = [
             ("speed", "WS-01", "工作線速度", "產線速度"),
             ("unwind", "WS-01", "放捲張力設定", "放捲張力"),
