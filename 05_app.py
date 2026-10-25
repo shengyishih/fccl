@@ -513,7 +513,19 @@ with tabs[1]:
 # ==========================================
 with tabs[2]:
     st.markdown("### ⚙️ 機台製程參數偏差瀑布圖與缺陷成因關聯")
-    st.caption("對比目標設定值 Target 與實際生產讀值 Actual 之偏差百分比")
+    st.caption("10 點量測 QC 與設備參數偏差分開呈現；設備模型機率不能取代厚度規格判定。")
+    equipment_deviation_pct = pd.Series({
+        key: pd.to_numeric(pd.Series([current_batch.get(f"{key}_deviation_pct")]), errors="coerce").iloc[0]
+        for key, _label, _unit in EQUIPMENT_PARAMETERS
+    })
+    abnormal_equipment_count = int(equipment_deviation_pct.abs().ge(1.0).sum())
+    qc_column, equipment_column = st.columns(2)
+    qc_column.metric("10 點量測 QC", "不合格" if current_batch["QC_Result"] == "NG" else "合格")
+    equipment_column.metric("設備偏差達 1% 項目", f"{abnormal_equipment_count} 項")
+    if current_batch["QC_Result"] == "NG" and abnormal_equipment_count == 0:
+        st.warning("量測超出規格，但設備參數偏差未達 1%；請檢查量測系統、未監測設備因素或局部污染。")
+    elif current_batch["QC_Result"] == "PASS" and abnormal_equipment_count > 0:
+        st.info("設備參數有偏差，但 10 點量測仍符合規格；這兩項判定不必然相同。")
 
     parameter_impacts = {
         "speed": "線速變動會影響塗布與乾燥時間。",

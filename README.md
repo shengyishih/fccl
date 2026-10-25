@@ -10,7 +10,9 @@
 - `03_random_forest_training.ipynb`：訓練並評估異常分類模型。
 - `04_model_predict.ipynb`：載入模型並示範預測。
 - `05_app.py`：Streamlit 儀表板；讀取下方專案 CSV，並在調機模擬中載入專案 joblib 模型。
-- `models/random_forest_anomaly.joblib`：已訓練模型。
+- `models/random_forest_anomaly.joblib`：使用厚度剖面與批次製程欄位預測注入異常的示範模型。
+- `models/equipment_anomaly_model.joblib`：以設備參數偏差預測設備異常，供調機模擬器使用。
+- `data/processed/fccl_equipment_specs.json`：第五頁依產品型號顯示的設備規格。
 - `data/processed/`：清理後的批次資料、逐測點資料及製程偏差特徵。
 
 ## 執行資料準備 notebook
@@ -37,14 +39,16 @@ uv sync
 uv run python -m streamlit run 05_app.py
 ```
 
-應用程式使用 `data/processed/fccl_cleaned.csv` 和 `data/processed/fccl_process_deviation_features.csv` 顯示批次資料及製程偏差，並使用 `models/random_forest_anomaly.joblib` 評估調機模擬後的異常分類。所有檔案均取自本專案，不會改讀其他部署頁面上的資料集。
+應用程式使用 `data/processed/fccl_cleaned.csv` 和 `data/processed/fccl_process_deviation_features.csv` 顯示批次資料及製程偏差，並使用 `models/equipment_anomaly_model.joblib` 評估調機模擬後的設備異常分類。所有檔案均取自本專案，不會改讀其他部署頁面上的資料集。
 
 ## 資料處理原則
 
 - 移除完全重複列並修剪文字欄位前後空白；日期欄位轉為日期格式。
 - 溫度欄位的缺值會保留，不會在沒有製程依據時自行填補。
 - 合成資料中的異常標記、異常量測值及 QC 結果會保留，供 EDA 和後續分析使用。
+- 每種注入厚度異常均在合成資料中配置對應設備參數偏差，讓設備模型有可觀察的輸入訊號；這是示範用的合成因果設定。
 - `Potential_Root_Cause_Synthetic` 是合成資料中的假設根因，不代表實際調查結論。
+- 10 點量測 QC 結果依 LSL/USL 判定；設備偏差和模型機率是另一項訊號，兩者不可互相取代。
 - 異常標籤與根因欄位用於合成示範；模型結果不代表已在真實產線驗證。
 - 厚度測點的規格判定使用每筆資料的 LSL 與 USL，邊界值視為符合規格。
 
