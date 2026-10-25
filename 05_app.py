@@ -853,7 +853,6 @@ with tabs[3]:
     )
 
     st.subheader("模型建議調整數據")
-    if model_bundle.get("data_is_synthetic"):
     if recommendations.empty:
         st.info("目前沒有單項設備偏差達 1%，因此不產生單項調機建議；這不代表批次 QC 判定合格。")
     else:
