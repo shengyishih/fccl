@@ -525,9 +525,6 @@ anomaly_labels = {
     "整體厚度偏移": "Mean_Shift",
 }
 anomaly_display_names = {code: label for label, code in anomaly_labels.items()}
-anomaly_options = {"全部模式": None, **{label: code for label, code in anomaly_labels.items()}}
-anomaly_filter = st.sidebar.selectbox("合成異常情境（資料標籤）", list(anomaly_options))
-anomaly_key = anomaly_options[anomaly_filter]
 
 profile_options = {"全部截面型態": None, **{label: label for label in CROSS_SECTION_LABELS}}
 profile_filter = st.sidebar.selectbox("TD 截面型態", list(profile_options))
@@ -541,8 +538,6 @@ if qc_filter.startswith("PASS"):
     date_source = date_source[date_source["QC_Result"] == "PASS"]
 elif qc_filter.startswith("NG"):
     date_source = date_source[date_source["QC_Result"] == "NG"]
-if anomaly_key is not None:
-    date_source = date_source[date_source["Anomaly_Pattern"] == anomaly_key]
 if profile_key is not None:
     date_source = date_source[date_source["Cross_Section_Type"] == profile_key]
 available_dates = pd.to_datetime(date_source["Sample_Date"], errors="coerce").dropna()
@@ -566,8 +561,6 @@ if qc_filter.startswith("PASS"):
     df_filtered = df_filtered[df_filtered['QC_Result'] == "PASS"]
 elif qc_filter.startswith("NG"):
     df_filtered = df_filtered[df_filtered['QC_Result'] == "NG"]
-if anomaly_key is not None:
-    df_filtered = df_filtered[df_filtered['Anomaly_Pattern'] == anomaly_key]
 if profile_key is not None:
     df_filtered = df_filtered[df_filtered["Cross_Section_Type"] == profile_key]
 if date_selection is not None:
@@ -587,7 +580,7 @@ if len(df_filtered) == 0:
     st.stop()
 
 # Let a selected row in the batch table drive the current analysis batch and KPI cards.
-filter_signature = (line_key, model_filter, qc_filter, anomaly_key, profile_key, date_mode, date_selection)
+filter_signature = (line_key, model_filter, qc_filter, profile_key, date_mode, date_selection)
 table_widget_key = "batch_database_table_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
 table_state = st.session_state.get(table_widget_key)
 selected_rows = getattr(getattr(table_state, "selection", None), "rows", []) if table_state is not None else []
