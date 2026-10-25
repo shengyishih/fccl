@@ -385,6 +385,7 @@ anomaly_labels = {
     "厚度漂移": "Drift",
     "整體厚度偏移": "Mean_Shift",
 }
+anomaly_display_names = {code: label for label, code in anomaly_labels.items()}
 anomaly_options = {"全部模式": None, **{label: code for label, code in anomaly_labels.items()}}
 anomaly_filter = st.sidebar.selectbox("截面異常模式", list(anomaly_options))
 anomaly_key = anomaly_options[anomaly_filter]
@@ -459,9 +460,8 @@ def build_database_view(dataframe):
     database_view["QC_Result"] = database_view["QC_Result"].map(
         {"PASS": "合格", "NG": "不合格"}
     ).fillna(database_view["QC_Result"])
-    anomaly_names = {code: label for label, code in anomaly_labels.items()}
     database_view["Anomaly_Pattern"] = database_view["Anomaly_Pattern"].map(
-        anomaly_names
+        anomaly_display_names
     ).fillna(database_view["Anomaly_Pattern"])
     return database_view.rename(columns={
         "Batch_ID": "批次編號",
@@ -958,7 +958,7 @@ with tabs[4]:
                     "偏離 Target ≥1% 批次": int(deviation_rows["Batch_ID"].nunique()),
                     "超出 QCP 批次": int(qcp_rows["Batch_ID"].nunique()),
                     "同批厚度 NG": int(same_batch_ng["Batch_ID"].nunique()),
-                    "常見異常型態": patterns.index[0] if len(patterns) else "—",
+                    "常見異常型態": anomaly_display_names.get(patterns.index[0], patterns.index[0]) if len(patterns) else "—",
                     "研判": judgment,
                 })
 
@@ -1000,6 +1000,9 @@ with tabs[4]:
                     "Anomaly_Pattern": "厚度異常型態",
                 })
                 detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
+                detail_view["厚度異常型態"] = detail_view["厚度異常型態"].map(
+                    anomaly_display_names
+                ).fillna(detail_view["厚度異常型態"])
                 st.dataframe(
                     detail_view,
                     hide_index=True,
