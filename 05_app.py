@@ -449,11 +449,16 @@ else:
     current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
 
 # 5. Current batch summary cards
-title_column, settings_column = st.columns([20, 1], vertical_alignment="center")
+title_column, settings_column = st.columns([10, 2], vertical_alignment="center")
 with title_column:
     st.markdown("## 📐 FCCL 製程優化與基材厚度分析儀表板")
 with settings_column:
-    if st.button("⚙️", help="開啟製程設備參數", key="open_equipment_settings_dialog"):
+    if st.button(
+        "製程設備參數",
+        icon=":material/settings:",
+        help="開啟製程設備參數設定",
+        key="open_equipment_settings_dialog",
+    ):
         show_equipment_settings_dialog()
 st.markdown("*QC/QA 機械厚度檢測法 (IPC-TM-650 2.2.18) · 跨幅 10 點連續剖面與機台製程參數優化*")
 
