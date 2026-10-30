@@ -873,7 +873,12 @@ with tabs[3]:
             else:
                 st.info("模型在規格範圍內未找到可降低異常機率的單項調整；建議維持目前值並依製程規範檢查。")
 
-        recommendation_labels = recommendations["設備參數"].tolist()
+        prioritized_recommendations = recommendations.sort_values(
+            ["建議後異常機率（%）", "機率下降（百分點）"],
+            ascending=[True, False],
+            kind="stable",
+        )
+        recommendation_labels = prioritized_recommendations["設備參數"].tolist()
         selected_recommendation = st.selectbox("選擇要帶入的模型建議", recommendation_labels, key=f"recommendation_{batch_id}")
         if st.button("套用建議值到模擬參數", key=f"apply_recommendation_{batch_id}"):
             chosen = recommendations.loc[recommendations["設備參數"].eq(selected_recommendation)].iloc[0]
