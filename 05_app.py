@@ -605,7 +605,7 @@ def build_database_view(dataframe):
 # 5. Current batch summary cards
 title_column, settings_column = st.columns([10, 2], vertical_alignment="center")
 with title_column:
-    st.markdown("## 📐 FCCL 基材厚度與製程優化分析儀表板")
+    st.markdown("## 📐 FCCL 基材厚度分析與製程優化儀表板")
 with settings_column:
     if st.button(
         "製程設備參數",
