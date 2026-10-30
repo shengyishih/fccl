@@ -573,22 +573,15 @@ if len(df_filtered) == 0:
     st.warning("查無符合篩選條件之批次數據，請放寬篩選條件。")
     st.stop()
 
-# Let the selected batch drive the analysis batch and KPI cards.
+# Let a selected row in the batch database drive the analysis batch and KPI cards.
 filter_signature = (line_key, model_filter, qc_filter, profile_key, date_mode, date_selection)
-batch_selector_key = "analysis_batch_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
-sorted_batches = df_filtered.sort_values(["Sample_Date", "Batch_ID"])
-batch_ids = sorted_batches["Batch_ID"].astype(str).tolist()
-latest_batch_id = batch_ids[-1]
-selected_batch_id = st.session_state.get(batch_selector_key, latest_batch_id)
-if selected_batch_id not in batch_ids:
-    selected_batch_id = latest_batch_id
-selected_batch_id = st.sidebar.selectbox(
-    "選擇分析批次",
-    batch_ids,
-    index=batch_ids.index(selected_batch_id),
-    key=batch_selector_key,
-)
-current_batch = df_filtered.loc[df_filtered["Batch_ID"].astype(str).eq(selected_batch_id)].iloc[0]
+table_widget_key = "batch_database_table_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
+table_state = st.session_state.get(table_widget_key)
+selected_rows = getattr(getattr(table_state, "selection", None), "rows", []) if table_state is not None else []
+if selected_rows and 0 <= selected_rows[0] < len(df_filtered):
+    current_batch = df_filtered.iloc[selected_rows[0]]
+else:
+    current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
 
 
 def build_database_view(dataframe):
@@ -672,11 +665,14 @@ tabs = st.tabs([
 with tabs[0]:
     st.markdown("### 📋 批次全數據庫")
     database_view = build_database_view(df_filtered)
-    st.table(
+    st.dataframe(
         database_view,
         hide_index=True,
         width="stretch",
         height="content",
+        key=table_widget_key,
+        on_select="rerun",
+        selection_mode="single-row",
     )
 
 # ==========================================
