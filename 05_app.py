@@ -360,10 +360,11 @@ def show_equipment_settings_dialog():
                 }
                 for parameter in station["parameters"]
             ]
-            st.dataframe(
+            st.table(
                 pd.DataFrame(station_rows),
                 hide_index=True,
                 width="stretch",
+                height="content",
                 alt=f"{selected_model} {station['code']} 設備參數與管制範圍",
             )
 
@@ -572,15 +573,22 @@ if len(df_filtered) == 0:
     st.warning("查無符合篩選條件之批次數據，請放寬篩選條件。")
     st.stop()
 
-# Let a selected row in the batch table drive the current analysis batch and KPI cards.
+# Let the selected batch drive the analysis batch and KPI cards.
 filter_signature = (line_key, model_filter, qc_filter, profile_key, date_mode, date_selection)
-table_widget_key = "batch_database_table_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
-table_state = st.session_state.get(table_widget_key)
-selected_rows = getattr(getattr(table_state, "selection", None), "rows", []) if table_state is not None else []
-if selected_rows and 0 <= selected_rows[0] < len(df_filtered):
-    current_batch = df_filtered.iloc[selected_rows[0]]
-else:
-    current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
+batch_selector_key = "analysis_batch_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
+sorted_batches = df_filtered.sort_values(["Sample_Date", "Batch_ID"])
+batch_ids = sorted_batches["Batch_ID"].astype(str).tolist()
+latest_batch_id = batch_ids[-1]
+selected_batch_id = st.session_state.get(batch_selector_key, latest_batch_id)
+if selected_batch_id not in batch_ids:
+    selected_batch_id = latest_batch_id
+selected_batch_id = st.sidebar.selectbox(
+    "選擇分析批次",
+    batch_ids,
+    index=batch_ids.index(selected_batch_id),
+    key=batch_selector_key,
+)
+current_batch = df_filtered.loc[df_filtered["Batch_ID"].astype(str).eq(selected_batch_id)].iloc[0]
 
 
 def build_database_view(dataframe):
@@ -664,13 +672,11 @@ tabs = st.tabs([
 with tabs[0]:
     st.markdown("### 📋 批次全數據庫")
     database_view = build_database_view(df_filtered)
-    st.dataframe(
+    st.table(
         database_view,
         hide_index=True,
         width="stretch",
-        key=table_widget_key,
-        on_select="rerun",
-        selection_mode="single-row",
+        height="content",
     )
 
 # ==========================================
@@ -839,10 +845,11 @@ with tabs[3]:
             "偏差狀態": "達 1% 門檻" if pd.notna(deviation_pct) and abs(deviation_pct) >= 1 else "未達 1% 門檻",
             "單位": unit,
         })
-    st.dataframe(
+    st.table(
         pd.DataFrame(parameter_status_rows).round(4),
         hide_index=True,
         width="stretch",
+        height="content",
     )
 
     st.subheader("模型建議調整數據")
@@ -859,7 +866,7 @@ with tabs[3]:
             recommendation_view[column] = recommendation_view[column].round(4)
         for column in ["目前異常機率（%）", "建議後異常機率（%）", "機率下降（百分點）"]:
             recommendation_view[column] = recommendation_view[column].round(2)
-        st.dataframe(recommendation_view, hide_index=True, width="stretch", alt="模型建議值、產品規格上下限與模擬分數比較")
+        st.table(recommendation_view, hide_index=True, width="stretch", height="content", alt="模型建議值、產品規格上下限與模擬分數比較")
         if recommendations["機率下降（百分點）"].max() <= 0:
             current_outside_spec = (
                 (recommendations["目前實際值"] < recommendations["規格下限"])
@@ -932,10 +939,11 @@ with tabs[3]:
         comparison = pd.DataFrame(changes)
         with comparison_column:
             st.subheader("設備參數調整比較")
-            st.dataframe(
+            st.table(
                 comparison.round(4),
                 hide_index=True,
                 width="stretch",
+                height="content",
                 alt="模擬調整前後設備參數比較",
             )
 
@@ -957,11 +965,11 @@ with tabs[4]:
     else:
         st.subheader("批次全數據庫")
         station_database_view = build_database_view(analysis_batches)
-        st.dataframe(
+        st.table(
             station_database_view,
             hide_index=True,
             width="stretch",
-            key="station_analysis_batch_database",
+            height="content",
             alt="依左側篩選條件顯示與批次全數據庫相同欄位的批次資料",
         )
 
@@ -1100,10 +1108,11 @@ with tabs[4]:
                 })
 
             st.subheader("各產線工作站異常摘要")
-            st.dataframe(
+            st.table(
                 pd.DataFrame(summary_rows),
                 hide_index=True,
                 width="stretch",
+                height="content",
                 alt="依產線及工作站彙總參數偏差、QCP 超界及同批厚度異常關聯",
             )
 
@@ -1135,10 +1144,11 @@ with tabs[4]:
                     "Cross_Section_Type": "TD截面型態",
                 })
                 detail_view["日期"] = pd.to_datetime(detail_view["日期"]).dt.strftime("%Y-%m-%d")
-                st.dataframe(
+                st.table(
                     detail_view,
                     hide_index=True,
                     width="stretch",
+                    height="content",
                     alt="依左側篩選條件列出各產線工作站異常批次及關聯資訊",
                 )
 
