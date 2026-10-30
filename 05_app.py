@@ -573,6 +573,9 @@ if len(df_filtered) == 0:
     st.warning("查無符合篩選條件之批次數據，請放寬篩選條件。")
     st.stop()
 
+# Keep the database and its row selection in newest-first date order.
+df_filtered = df_filtered.sort_values("Sample_Date", ascending=False, na_position="last").reset_index(drop=True)
+
 # Let a selected row in the batch database drive the analysis batch and KPI cards.
 filter_signature = (line_key, model_filter, qc_filter, profile_key, date_mode, date_selection)
 table_widget_key = "batch_database_table_" + hashlib.sha1(repr(filter_signature).encode("utf-8")).hexdigest()[:12]
@@ -581,14 +584,14 @@ selected_rows = getattr(getattr(table_state, "selection", None), "rows", []) if 
 if selected_rows and 0 <= selected_rows[0] < len(df_filtered):
     current_batch = df_filtered.iloc[selected_rows[0]]
 else:
-    current_batch = df_filtered.sort_values("Sample_Date").iloc[-1]
+    current_batch = df_filtered.iloc[0]
 
 
 def build_database_view(dataframe):
     database_view = dataframe[[
         "Batch_ID", "Sample_Date", "Line", "Product_Model", "cpk", "Quality_Judgment",
         "Cross_Section_Type",
-    ]].copy()
+    ]].copy().sort_values("Sample_Date", ascending=False, na_position="last")
     database_view["Line"] = database_view["Line"].map(
         {"1L": "1L（單層）", "2L": "2L（雙層）", "3L": "3L（三層）"}
     ).fillna(database_view["Line"])
