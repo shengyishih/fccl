@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-FCCL 製程優化與基材厚度分析系統 (FCCL Process Optimization Dashboard)
+FCCL 基材厚度分析與製程優化系統 (FCCL Process Optimization Dashboard)
 專為 FCCL 製程工程師與品管 QC/QA 設計
 標準規範: IPC-TM-650 Method 2.2.18 / 2.2.4 基材機械厚度檢測法
 可直接上傳 GitHub 並發佈至 Streamlit Community Cloud (https://share.streamlit.io)
@@ -18,7 +18,7 @@ import plotly.graph_objects as go
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="FCCL 製程優化與基材厚度分析系統",
+    page_title="FCCL 基材厚度分析與製程優化系統",
     page_icon="📐",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -493,7 +493,7 @@ except Exception as e:
     st.stop()
 
 # 4. Sidebar Controls & Filtering
-st.sidebar.markdown("### 🎛️ FCCL 製程品管篩選器")
+st.sidebar.markdown("### 🎛️ FCCL 製程產線篩選器")
 
 line_types = {"1L": "單層", "2L": "雙層", "3L": "三層"}
 line_options = {"全部產線": None}
